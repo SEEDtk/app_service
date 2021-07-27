@@ -30,16 +30,16 @@ Bio::KBase::AppService::Client
 sub new
 {
     my($class, $url, @args) = @_;
-    
+
     if (!defined($url))
     {
-	$url = 'http://p3.theseed.org/services/app_service';
+    $url = 'https://p3.theseed.org/services/app_service';
     }
 
     my $self = {
-	client => Bio::KBase::AppService::Client::RpcClient->new,
-	url => $url,
-	headers => [],
+    client => Bio::KBase::AppService::Client::RpcClient->new,
+    url => $url,
+    headers => [],
     };
 
     chomp($self->{hostname} = `hostname`);
@@ -52,27 +52,27 @@ sub new
     #
     if ($ENV{KBRPC_TAG})
     {
-	$self->{kbrpc_tag} = $ENV{KBRPC_TAG};
+    $self->{kbrpc_tag} = $ENV{KBRPC_TAG};
     }
     else
     {
-	my ($t, $us) = &$get_time();
-	$us = sprintf("%06d", $us);
-	my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
-	$self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
+    my ($t, $us) = &$get_time();
+    $us = sprintf("%06d", $us);
+    my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
+    $self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
     }
     push(@{$self->{headers}}, 'Kbrpc-Tag', $self->{kbrpc_tag});
 
     if ($ENV{KBRPC_METADATA})
     {
-	$self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
-	push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
+    $self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
+    push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
     }
 
     if ($ENV{KBRPC_ERROR_DEST})
     {
-	$self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
-	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
+    $self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
+    push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
     }
 
     #
@@ -81,25 +81,25 @@ sub new
     # We create an auth token, passing through the arguments that we were (hopefully) given.
 
     {
-	my $token = P3AuthToken->new(@args);
-	
-	if (my $token_str = $token->token())
-	{
-	    $self->{token} = $token_str;
-	    $self->{client}->{token} = $token_str;
-	}
+    my $token = P3AuthToken->new(@args);
+
+    if (my $token_str = $token->token())
+    {
+        $self->{token} = $token_str;
+        $self->{client}->{token} = $token_str;
+    }
         else
         {
-	    #
-	    # All methods in this module require authentication. In this case, if we
-	    # don't have a token, we can't continue.
-	    #
-	    die "Authentication failed\n";
-	}
+        #
+        # All methods in this module require authentication. In this case, if we
+        # don't have a token, we can't continue.
+        #
+        die "Authentication failed\n";
+    }
     }
 
-    my $ua = $self->{client}->ua;	 
-    my $timeout = $ENV{CDMI_TIMEOUT} || (30 * 60);	 
+    my $ua = $self->{client}->ua;
+    my $timeout = $ENV{CDMI_TIMEOUT} || (30 * 60);
     $ua->timeout($timeout);
     $ua->agent("Bio::KBase::AppService::Client UserAgent");
     bless $self, $class;
@@ -121,8 +121,8 @@ sub new
 
 <pre>
 $return is a reference to a list containing 2 items:
-	0: (submission_enabled) an int
-	1: (status_message) a string
+    0: (submission_enabled) an int
+    1: (status_message) a string
 
 </pre>
 
@@ -131,8 +131,8 @@ $return is a reference to a list containing 2 items:
 =begin text
 
 $return is a reference to a list containing 2 items:
-	0: (submission_enabled) an int
-	1: (status_message) a string
+    0: (submission_enabled) an int
+    1: (status_message) a string
 
 
 =end text
@@ -157,19 +157,19 @@ sub service_status
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.service_status",
-	params => \@args,
+    method => "AppService.service_status",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking service_status:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking service_status:\n$msg\n";
     } else {
-	die "Error invoking method service_status: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method service_status: " .  $self->{client}->status_line;
     }
 }
 
@@ -188,21 +188,21 @@ sub service_status
 <pre>
 $return is a reference to a list where each element is an App
 App is a reference to a hash where the following keys are defined:
-	id has a value which is an app_id
-	script has a value which is a string
-	label has a value which is a string
-	description has a value which is a string
-	parameters has a value which is a reference to a list where each element is an AppParameter
+    id has a value which is an app_id
+    script has a value which is a string
+    label has a value which is a string
+    description has a value which is a string
+    parameters has a value which is a reference to a list where each element is an AppParameter
 app_id is a string
 AppParameter is a reference to a hash where the following keys are defined:
-	id has a value which is a string
-	label has a value which is a string
-	required has a value which is an int
-	default has a value which is a string
-	desc has a value which is a string
-	type has a value which is a string
-	enum has a value which is a string
-	wstype has a value which is a string
+    id has a value which is a string
+    label has a value which is a string
+    required has a value which is an int
+    default has a value which is a string
+    desc has a value which is a string
+    type has a value which is a string
+    enum has a value which is a string
+    wstype has a value which is a string
 
 </pre>
 
@@ -212,21 +212,21 @@ AppParameter is a reference to a hash where the following keys are defined:
 
 $return is a reference to a list where each element is an App
 App is a reference to a hash where the following keys are defined:
-	id has a value which is an app_id
-	script has a value which is a string
-	label has a value which is a string
-	description has a value which is a string
-	parameters has a value which is a reference to a list where each element is an AppParameter
+    id has a value which is an app_id
+    script has a value which is a string
+    label has a value which is a string
+    description has a value which is a string
+    parameters has a value which is a reference to a list where each element is an AppParameter
 app_id is a string
 AppParameter is a reference to a hash where the following keys are defined:
-	id has a value which is a string
-	label has a value which is a string
-	required has a value which is an int
-	default has a value which is a string
-	desc has a value which is a string
-	type has a value which is a string
-	enum has a value which is a string
-	wstype has a value which is a string
+    id has a value which is a string
+    label has a value which is a string
+    required has a value which is an int
+    default has a value which is a string
+    desc has a value which is a string
+    type has a value which is a string
+    enum has a value which is a string
+    wstype has a value which is a string
 
 
 =end text
@@ -251,19 +251,19 @@ sub enumerate_apps
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.enumerate_apps",
-	params => \@args,
+    method => "AppService.enumerate_apps",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking enumerate_apps:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking enumerate_apps:\n$msg\n";
     } else {
-	die "Error invoking method enumerate_apps: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method enumerate_apps: " .  $self->{client}->status_line;
     }
 }
 
@@ -288,19 +288,19 @@ app_id is a string
 task_parameters is a reference to a hash where the key is a string and the value is a string
 workspace_id is a string
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 task_id is a string
 task_status is a string
 
@@ -318,19 +318,19 @@ app_id is a string
 task_parameters is a reference to a hash where the key is a string and the value is a string
 workspace_id is a string
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 task_id is a string
 task_status is a string
 
@@ -356,32 +356,32 @@ sub start_app
         die "Invalid argument count for function start_app (received $n, expecting 3)";
     }
     {
-	my($app_id, $params, $workspace) = @args;
+    my($app_id, $params, $workspace) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (!ref($app_id)) or push(@_bad_arguments, "Invalid type for argument 1 \"app_id\" (value was \"$app_id\")");
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 2 \"params\" (value was \"$params\")");
         (!ref($workspace)) or push(@_bad_arguments, "Invalid type for argument 3 \"workspace\" (value was \"$workspace\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to start_app:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to start_app:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.start_app",
-	params => \@args,
+    method => "AppService.start_app",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking start_app:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking start_app:\n$msg\n";
     } else {
-	die "Error invoking method start_app: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method start_app: " .  $self->{client}->status_line;
     }
 }
 
@@ -405,24 +405,24 @@ $task is a Task
 app_id is a string
 task_parameters is a reference to a hash where the key is a string and the value is a string
 StartParams is a reference to a hash where the following keys are defined:
-	parent_id has a value which is a task_id
-	workspace has a value which is a workspace_id
+    parent_id has a value which is a task_id
+    workspace has a value which is a workspace_id
 task_id is a string
 workspace_id is a string
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 task_status is a string
 
 </pre>
@@ -438,24 +438,24 @@ $task is a Task
 app_id is a string
 task_parameters is a reference to a hash where the key is a string and the value is a string
 StartParams is a reference to a hash where the following keys are defined:
-	parent_id has a value which is a task_id
-	workspace has a value which is a workspace_id
+    parent_id has a value which is a task_id
+    workspace has a value which is a workspace_id
 task_id is a string
 workspace_id is a string
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 task_status is a string
 
 
@@ -480,32 +480,32 @@ sub start_app2
         die "Invalid argument count for function start_app2 (received $n, expecting 3)";
     }
     {
-	my($app_id, $params, $start_params) = @args;
+    my($app_id, $params, $start_params) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (!ref($app_id)) or push(@_bad_arguments, "Invalid type for argument 1 \"app_id\" (value was \"$app_id\")");
         (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 2 \"params\" (value was \"$params\")");
         (ref($start_params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 3 \"start_params\" (value was \"$start_params\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to start_app2:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to start_app2:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.start_app2",
-	params => \@args,
+    method => "AppService.start_app2",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking start_app2:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking start_app2:\n$msg\n";
     } else {
-	die "Error invoking method start_app2: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method start_app2: " .  $self->{client}->status_line;
     }
 }
 
@@ -526,19 +526,19 @@ $task_ids is a reference to a list where each element is a task_id
 $tasks is a reference to a hash where the key is a task_id and the value is a Task
 task_id is a string
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 app_id is a string
 workspace_id is a string
 task_parameters is a reference to a hash where the key is a string and the value is a string
@@ -554,19 +554,19 @@ $task_ids is a reference to a list where each element is a task_id
 $tasks is a reference to a hash where the key is a task_id and the value is a Task
 task_id is a string
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 app_id is a string
 workspace_id is a string
 task_parameters is a reference to a hash where the key is a string and the value is a string
@@ -594,30 +594,30 @@ sub query_tasks
         die "Invalid argument count for function query_tasks (received $n, expecting 1)";
     }
     {
-	my($task_ids) = @args;
+    my($task_ids) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (ref($task_ids) eq 'ARRAY') or push(@_bad_arguments, "Invalid type for argument 1 \"task_ids\" (value was \"$task_ids\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to query_tasks:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to query_tasks:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.query_tasks",
-	params => \@args,
+    method => "AppService.query_tasks",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking query_tasks:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking query_tasks:\n$msg\n";
     } else {
-	die "Error invoking method query_tasks: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method query_tasks: " .  $self->{client}->status_line;
     }
 }
 
@@ -669,19 +669,19 @@ sub query_task_summary
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.query_task_summary",
-	params => \@args,
+    method => "AppService.query_task_summary",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking query_task_summary:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking query_task_summary:\n$msg\n";
     } else {
-	die "Error invoking method query_task_summary: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method query_task_summary: " .  $self->{client}->status_line;
     }
 }
 
@@ -702,11 +702,11 @@ $task_id is a task_id
 $details is a TaskDetails
 task_id is a string
 TaskDetails is a reference to a hash where the following keys are defined:
-	stdout_url has a value which is a string
-	stderr_url has a value which is a string
-	pid has a value which is an int
-	hostname has a value which is a string
-	exitcode has a value which is an int
+    stdout_url has a value which is a string
+    stderr_url has a value which is a string
+    pid has a value which is an int
+    hostname has a value which is a string
+    exitcode has a value which is an int
 
 </pre>
 
@@ -718,11 +718,11 @@ $task_id is a task_id
 $details is a TaskDetails
 task_id is a string
 TaskDetails is a reference to a hash where the following keys are defined:
-	stdout_url has a value which is a string
-	stderr_url has a value which is a string
-	pid has a value which is an int
-	hostname has a value which is a string
-	exitcode has a value which is an int
+    stdout_url has a value which is a string
+    stderr_url has a value which is a string
+    pid has a value which is an int
+    hostname has a value which is a string
+    exitcode has a value which is an int
 
 
 =end text
@@ -746,30 +746,30 @@ sub query_task_details
         die "Invalid argument count for function query_task_details (received $n, expecting 1)";
     }
     {
-	my($task_id) = @args;
+    my($task_id) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (!ref($task_id)) or push(@_bad_arguments, "Invalid type for argument 1 \"task_id\" (value was \"$task_id\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to query_task_details:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to query_task_details:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.query_task_details",
-	params => \@args,
+    method => "AppService.query_task_details",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking query_task_details:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking query_task_details:\n$msg\n";
     } else {
-	die "Error invoking method query_task_details: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method query_task_details: " .  $self->{client}->status_line;
     }
 }
 
@@ -790,19 +790,19 @@ $offset is an int
 $count is an int
 $return is a reference to a list where each element is a Task
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 task_id is a string
 app_id is a string
 workspace_id is a string
@@ -819,19 +819,19 @@ $offset is an int
 $count is an int
 $return is a reference to a list where each element is a Task
 Task is a reference to a hash where the following keys are defined:
-	id has a value which is a task_id
-	parent_id has a value which is a task_id
-	app has a value which is an app_id
-	workspace has a value which is a workspace_id
-	parameters has a value which is a task_parameters
-	user_id has a value which is a string
-	status has a value which is a task_status
-	awe_status has a value which is a task_status
-	submit_time has a value which is a string
-	start_time has a value which is a string
-	completed_time has a value which is a string
-	stdout_shock_node has a value which is a string
-	stderr_shock_node has a value which is a string
+    id has a value which is a task_id
+    parent_id has a value which is a task_id
+    app has a value which is an app_id
+    workspace has a value which is a workspace_id
+    parameters has a value which is a task_parameters
+    user_id has a value which is a string
+    status has a value which is a task_status
+    awe_status has a value which is a task_status
+    submit_time has a value which is a string
+    start_time has a value which is a string
+    completed_time has a value which is a string
+    stdout_shock_node has a value which is a string
+    stderr_shock_node has a value which is a string
 task_id is a string
 app_id is a string
 workspace_id is a string
@@ -860,31 +860,31 @@ sub enumerate_tasks
         die "Invalid argument count for function enumerate_tasks (received $n, expecting 2)";
     }
     {
-	my($offset, $count) = @args;
+    my($offset, $count) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (!ref($offset)) or push(@_bad_arguments, "Invalid type for argument 1 \"offset\" (value was \"$offset\")");
         (!ref($count)) or push(@_bad_arguments, "Invalid type for argument 2 \"count\" (value was \"$count\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to enumerate_tasks:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to enumerate_tasks:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.enumerate_tasks",
-	params => \@args,
+    method => "AppService.enumerate_tasks",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking enumerate_tasks:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking enumerate_tasks:\n$msg\n";
     } else {
-	die "Error invoking method enumerate_tasks: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method enumerate_tasks: " .  $self->{client}->status_line;
     }
 }
 
@@ -939,30 +939,30 @@ sub kill_task
         die "Invalid argument count for function kill_task (received $n, expecting 1)";
     }
     {
-	my($id) = @args;
+    my($id) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (!ref($id)) or push(@_bad_arguments, "Invalid type for argument 1 \"id\" (value was \"$id\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to kill_task:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to kill_task:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.kill_task",
-	params => \@args,
+    method => "AppService.kill_task",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking kill_task:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking kill_task:\n$msg\n";
     } else {
-	die "Error invoking method kill_task: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method kill_task: " .  $self->{client}->status_line;
     }
 }
 
@@ -1015,30 +1015,30 @@ sub rerun_task
         die "Invalid argument count for function rerun_task (received $n, expecting 1)";
     }
     {
-	my($id) = @args;
+    my($id) = @args;
 
-	my @_bad_arguments;
+    my @_bad_arguments;
         (!ref($id)) or push(@_bad_arguments, "Invalid type for argument 1 \"id\" (value was \"$id\")");
         if (@_bad_arguments) {
-	    my $msg = "Invalid arguments passed to rerun_task:\n" . join("", map { "\t$_\n" } @_bad_arguments);
-	    die $msg;
-	}
+        my $msg = "Invalid arguments passed to rerun_task:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+        die $msg;
+    }
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "AppService.rerun_task",
-	params => \@args,
+    method => "AppService.rerun_task",
+    params => \@args,
     });
     if ($result) {
-	if ($result->{error}) {
-	    my $msg = $result->{error}->{error} || $result->{error}->{message};
-	    $msg =  $self->{client}->json->encode($msg) if ref($msg);
-	    die "Error $result->{error}->{code} invoking rerun_task:\n$msg\n";
-	} else {
-	    return wantarray ? @{$result->{result}} : $result->{result}->[0];
-	}
+    if ($result->{error}) {
+        my $msg = $result->{error}->{error} || $result->{error}->{message};
+        $msg =  $self->{client}->json->encode($msg) if ref($msg);
+        die "Error $result->{error}->{code} invoking rerun_task:\n$msg\n";
     } else {
-	die "Error invoking method rerun_task: " .  $self->{client}->status_line;
+        return wantarray ? @{$result->{result}} : $result->{result}->[0];
+    }
+    } else {
+    die "Error invoking method rerun_task: " .  $self->{client}->status_line;
     }
 }
 
@@ -1446,13 +1446,13 @@ use JSON::XS;
 
 BEGIN {
     for my $method (qw/uri ua json content_type version id allow_call status_line/) {
-	eval qq|
-	    sub $method {
-		\$_[0]->{$method} = \$_[1] if defined \$_[1];
-		\$_[0]->{$method};
-	    }
-	    |;
-	}
+    eval qq|
+        sub $method {
+        \$_[0]->{$method} = \$_[1] if defined \$_[1];
+        \$_[0]->{$method};
+        }
+        |;
+    }
     }
 
 sub new
@@ -1461,10 +1461,10 @@ sub new
 
     my $ua = LWP::UserAgent->new();
     my $json = JSON::XS->new->allow_nonref->utf8;
-    
+
     my $self = {
-	ua => $ua,
-	json => $json,
+    ua => $ua,
+    json => $json,
     };
     return bless $self, $class;
 }
@@ -1475,13 +1475,13 @@ sub call {
 
 
     {
-	if ($uri =~ /\?/) {
-	    $result = $self->_get($uri);
-	}
-	else {
-	    Carp::croak "not hashref." unless (ref $obj eq 'HASH');
-	    $result = $self->_post($uri, $headers, $obj);
-	}
+    if ($uri =~ /\?/) {
+        $result = $self->_get($uri);
+    }
+    else {
+        Carp::croak "not hashref." unless (ref $obj eq 'HASH');
+        $result = $self->_post($uri, $headers, $obj);
+    }
 
     }
 
@@ -1491,18 +1491,18 @@ sub call {
 
     if ($result->is_success || $result->content_type eq 'application/json') {
 
-	my $txt = $result->content;
+    my $txt = $result->content;
 
         return unless($txt); # notification?
 
-	my $obj = eval { $self->json->decode($txt); };
+    my $obj = eval { $self->json->decode($txt); };
 
-	if (!$obj)
-	{
-	    die "Error parsing result: $@";
-	}
+    if (!$obj)
+    {
+        die "Error parsing result: $@";
+    }
 
-	return $obj;
+    return $obj;
     }
     else {
         return;
@@ -1512,9 +1512,9 @@ sub call {
 sub _get {
     my ($self, $uri) = @_;
     $self->ua->get(
-		   $uri,
-		   Accept         => 'application/json',
-		  );
+           $uri,
+           Accept         => 'application/json',
+          );
 }
 
 sub _post {
@@ -1534,8 +1534,8 @@ sub _post {
     }
     else {
         # $obj->{id} = $self->id if (defined $self->id);
-	# Assign a random number to the id if one hasn't been set
-	$obj->{id} = (defined $self->id) ? $self->id : substr(rand(),2);
+    # Assign a random number to the id if one hasn't been set
+    $obj->{id} = (defined $self->id) ? $self->id : substr(rand(),2);
     }
 
     my $content = $json->encode($obj);
@@ -1545,8 +1545,8 @@ sub _post {
         Content_Type   => $self->{content_type},
         Content        => $content,
         Accept         => 'application/json',
-	@$headers,
-	($self->{token} ? (Authorization => $self->{token}) : ()),
+    @$headers,
+    ($self->{token} ? (Authorization => $self->{token}) : ()),
     );
 }
 
