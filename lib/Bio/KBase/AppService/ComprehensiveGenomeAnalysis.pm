@@ -24,21 +24,22 @@ use Bio::KBase::AppService::AppConfig qw(data_api_url binning_genome_annotation_
 use GenomeTypeObject;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 use Archive::Zip::MemberRead;
+no warnings 'shadow';
 
 __PACKAGE__->mk_accessors(qw(app app_def params token
-			     output_base output_folder 
-			     contigs app_params
-			     assembly_statistics annotation_statistics
-			    ));
+                 output_base output_folder
+                 contigs app_params
+                 assembly_statistics annotation_statistics
+                ));
 
 sub new
 {
     my($class) = @_;
 
     my $self = {
-	app_params => [],
-	assembly_statistics => {},
-	annotation_statistics => {},
+    app_params => [],
+    assembly_statistics => {},
+    annotation_statistics => {},
     };
     return bless $self, $class;
 }
@@ -64,21 +65,21 @@ sub run
 
     if ($params->{input_type} eq 'reads')
     {
-	$self->process_reads();
-	$self->process_contigs();
+    $self->process_reads();
+    $self->process_contigs();
     }
     elsif ($params->{input_type} eq 'contigs')
     {
-	$self->contigs($params->{contigs});
-	$self->process_contigs();
+    $self->contigs($params->{contigs});
+    $self->process_contigs();
     }
     elsif ($params->{input_type} eq 'genbank')
     {
-	$self->process_genbank();
+    $self->process_genbank();
     }
     elsif ($params->{input_type} eq 'gto')
     {
-	$self->process_gto();
+    $self->process_gto();
     }
 
     #
@@ -113,11 +114,11 @@ sub process_reads
 
     if ($ENV{CGA_DEBUG})
     {
-	$task = {id => "0941e63f-7812-4602-98f2-858728e1e0d9"};
+    $task = {id => "0941e63f-7812-4602-98f2-858728e1e0d9"};
     }
     else
     {
-	$task = $client->start_app("GenomeAssembly", $assembly_input, $self->output_folder);
+    $task = $client->start_app("GenomeAssembly", $assembly_input, $self->output_folder);
     }
 
     print "Created task " . Dumper($task);
@@ -127,7 +128,7 @@ sub process_reads
 
     if (!$qtask || $qtask->{status} ne 'completed')
     {
-	die "ComprehensiveGenomeAnalysis: process_reads failed\n";
+    die "ComprehensiveGenomeAnalysis: process_reads failed\n";
     }
 
     #
@@ -151,57 +152,57 @@ sub process_reads
 
     my @assemblies;
     eval {
-	my $analysis_base = "${arast_id}_analysis";
-	my $analysis_zip = "${analysis_base}.zip";
-	my $analysis_path = join("/",$self->output_folder, ".assembly", $analysis_zip);
-	$self->app->workspace->download_file($analysis_path, $analysis_zip, 1, $self->token);
-	if (! -s $analysis_zip)
-	{
-	    die "Failed to download $analysis_path to $analysis_zip\n";
-	}
-    
-	my $zip = Archive::Zip->new();
-	system("ls", "-l", $analysis_zip);
-	$zip->read($analysis_zip) == AZ_OK or die "Cannot read $analysis_zip: $!";
-	my $fh = Archive::Zip::MemberRead->new($zip, "$analysis_base/transposed_report.tsv");
-	my $hdrs = $fh->getline();
-	print STDERR "Report headers from $analysis_path: $hdrs";
-	while (my $l = $fh->getline())
-	{
-	    chomp $l;
-	    print "Line: $l\n";
-	    my($assembly, @rest) = split(/\t/, $l);
-	    $assembly =~ s/_contigs$//;
-	    push(@assemblies, $assembly);
-	}
+    my $analysis_base = "${arast_id}_analysis";
+    my $analysis_zip = "${analysis_base}.zip";
+    my $analysis_path = join("/",$self->output_folder, ".assembly", $analysis_zip);
+    $self->app->workspace->download_file($analysis_path, $analysis_zip, 1, $self->token);
+    if (! -s $analysis_zip)
+    {
+        die "Failed to download $analysis_path to $analysis_zip\n";
+    }
+
+    my $zip = Archive::Zip->new();
+    system("ls", "-l", $analysis_zip);
+    $zip->read($analysis_zip) == AZ_OK or die "Cannot read $analysis_zip: $!";
+    my $fh = Archive::Zip::MemberRead->new($zip, "$analysis_base/transposed_report.tsv");
+    my $hdrs = $fh->getline();
+    print STDERR "Report headers from $analysis_path: $hdrs";
+    while (my $l = $fh->getline())
+    {
+        chomp $l;
+        print "Line: $l\n";
+        my($assembly, @rest) = split(/\t/, $l);
+        $assembly =~ s/_contigs$//;
+        push(@assemblies, $assembly);
+    }
     };
     if ($@)
     {
-	die "Retrieval and analysis of assembly report failed:\n$@\n";
+    die "Retrieval and analysis of assembly report failed:\n$@\n";
     }
 
     #
     # Fill in assembly run stats for the genome object.
     #
     {
-	my $chosen_assembly = $assemblies[0];
-	my $other_assemblies = join("\t", @assemblies[1..$#assemblies]);
-	my $start = str2time($qtask->{start_time});
-	my $end = str2time($qtask->{completed_time});
-	my $elap = $end - $start;
-	$self->assembly_statistics({
-	    job_id => $qtask->{id},
-	    start_time => $qtask->{start_time},
-	    completion_time => $qtask->{completed_time},
-	    elapsed_time => $elap,
-	    app_name => $qtask->{app},
-	    attributes => {
-		arast_job_id => $arast_id,
-		chosen_assembly => $chosen_assembly,
-		other_assemblies => $other_assemblies,
-	    },
-	    parameters => $qtask->{parameters},
-	});
+    my $chosen_assembly = $assemblies[0];
+    my $other_assemblies = join("\t", @assemblies[1..$#assemblies]);
+    my $start = str2time($qtask->{start_time});
+    my $end = str2time($qtask->{completed_time});
+    my $elap = $end - $start;
+    $self->assembly_statistics({
+        job_id => $qtask->{id},
+        start_time => $qtask->{start_time},
+        completion_time => $qtask->{completed_time},
+        elapsed_time => $elap,
+        app_name => $qtask->{app},
+        attributes => {
+        arast_job_id => $arast_id,
+        chosen_assembly => $chosen_assembly,
+        other_assemblies => $other_assemblies,
+        },
+        parameters => $qtask->{parameters},
+    });
     }
 
     #
@@ -211,7 +212,7 @@ sub process_reads
 
     if (@$stats == 0)
     {
-	die "Could not find generated contigs in $contigs_path\n";
+    die "Could not find generated contigs in $contigs_path\n";
     }
     $stats = $stats->[0]->[0];
 
@@ -245,7 +246,7 @@ sub process_contigs
 
     if (binning_genome_annotation_clientgroup)
     {
-	$annotation_input->{_clientgroup} = binning_genome_annotation_clientgroup;
+    $annotation_input->{_clientgroup} = binning_genome_annotation_clientgroup;
     }
 
 
@@ -256,13 +257,13 @@ sub process_contigs
     my $task;
     if ($ENV{CGA_DEBUG})
     {
-	$task = {id => "0941e63f-7812-4602-98f2-858728e1e0d9"};
+    $task = {id => "0941e63f-7812-4602-98f2-858728e1e0d9"};
     }
     else
     {
-	$task = $client->start_app("GenomeAnnotation", $annotation_input, $self->output_folder);
+    $task = $client->start_app("GenomeAnnotation", $annotation_input, $self->output_folder);
     }
-    
+
     print "Created task " . Dumper($task);
 
     my $task_id = $task->{id};
@@ -270,7 +271,7 @@ sub process_contigs
 
     if (!$qtask || $qtask->{status} ne 'completed')
     {
-	die "ComprehensiveGenomeAnalysis: process_reads failed\n";
+    die "ComprehensiveGenomeAnalysis: process_reads failed\n";
     }
 
 
@@ -278,23 +279,23 @@ sub process_contigs
     # Fill in annotation run stats for the genome object.
     #
     {
-	my $start = str2time($qtask->{start_time});
-	my $end = str2time($qtask->{completed_time});
-	my $elap = $end - $start;
-	my $stats = {
-	    job_id => $qtask->{id},
-	    start_time => $qtask->{start_time},
-	    completion_time => $qtask->{completed_time},
-	    elapsed_time => $elap,
-	    app_name => $qtask->{app},
-	    attributes => {
-	    },
-	    parameters => $qtask->{parameters},
-	};
-	$self->annotation_statistics($stats);
+    my $start = str2time($qtask->{start_time});
+    my $end = str2time($qtask->{completed_time});
+    my $elap = $end - $start;
+    my $stats = {
+        job_id => $qtask->{id},
+        start_time => $qtask->{start_time},
+        completion_time => $qtask->{completed_time},
+        elapsed_time => $elap,
+        app_name => $qtask->{app},
+        attributes => {
+        },
+        parameters => $qtask->{parameters},
+    };
+    $self->annotation_statistics($stats);
     }
 }
-    
+
 sub process_gto
 {
     my($self) = @_;
@@ -315,7 +316,7 @@ sub process_gto
     print STDERR "copy done\n";
     $self->annotation_statistics({});
 }
-    
+
 sub generate_report
 {
     my($self) = @_;
@@ -323,7 +324,7 @@ sub generate_report
     #
     # Download the generated genome object.
     #
-    
+
     my $anno_folder = $self->output_folder . "/.annotation";
     my $file = "annotation.genome";
     my $annotated_file = "annotation-with-stats.genome";
@@ -337,8 +338,8 @@ sub generate_report
     #
     my $gto = GenomeTypeObject->new({file => $file});
     $gto->{job_data} = {
-	assembly => $self->assembly_statistics,
-	annotation => $self->annotation_statistics,
+    assembly => $self->assembly_statistics,
+    annotation => $self->annotation_statistics,
     };
     $gto->destroy_to_file($annotated_file);
 
@@ -347,7 +348,7 @@ sub generate_report
     #
     my $sp_genes = "sp_gene.json";
     eval {
-	$self->app->workspace->download_file("$anno_folder/load_files/$sp_genes", $sp_genes, 1, $self->token->token);
+    $self->app->workspace->download_file("$anno_folder/load_files/$sp_genes", $sp_genes, 1, $self->token->token);
     };
 
     #
@@ -358,7 +359,7 @@ sub generate_report
 
     my $rc = system("p3x-determine-subsystem-colors", "-o", $ss_colors, $annotated_file);
     $rc == 0 or die "p3x-determine-subsystem-colors failed with rc=$rc";
-    
+
     #
     # Create circular viewer data.
     #
@@ -367,15 +368,15 @@ sub generate_report
     close($stat_tmp);
 
     my @cmd = ("p3x-generate-circos",
-	       "--truncate-small-contigs",
-	       "--truncate-small-contigs-threshold", 300,
-	       "--max-contigs", 500,
-	       "--truncation-status-file", "$stat_tmp",
-	       "--subsystem-colors", $ss_colors,
-	       (-s $sp_genes ? ("--specialty-genes", $sp_genes) : ()),
-	       "--output-png", "circos.png",
-	       "--output-svg", "circos.svg",
-	       $annotated_file);
+           "--truncate-small-contigs",
+           "--truncate-small-contigs-threshold", 300,
+           "--max-contigs", 500,
+           "--truncation-status-file", "$stat_tmp",
+           "--subsystem-colors", $ss_colors,
+           (-s $sp_genes ? ("--specialty-genes", $sp_genes) : ()),
+           "--output-png", "circos.png",
+           "--output-svg", "circos.svg",
+           $annotated_file);
     $rc = system(@cmd);
     $rc == 0 or die "Circos build failed with rc=$rc: @cmd";
 
@@ -386,74 +387,74 @@ sub generate_report
 
     if (open(my $fh, "<", "$stat_tmp"))
     {
-	my $l = <$fh>;
-	chomp $l;
-	print STDERR "p3x-generate-circos generated truncation statistics: '$l'\n";
-	if ($l =~ m,^(\d+)/(\d+),)
-	{
-	    $n_contigs_drawn = $1;
-	    $n_contigs = $2;
-	    @circos_stat_param = ("--n-contigs" => $n_contigs, "--n-contigs-drawn" => $n_contigs_drawn);
-	}
+    my $l = <$fh>;
+    chomp $l;
+    print STDERR "p3x-generate-circos generated truncation statistics: '$l'\n";
+    if ($l =~ m,^(\d+)/(\d+),)
+    {
+        $n_contigs_drawn = $1;
+        $n_contigs = $2;
+        @circos_stat_param = ("--n-contigs" => $n_contigs, "--n-contigs-drawn" => $n_contigs_drawn);
+    }
     }
     else
     {
-	print STDERR "p3x-generate-circos did not generate truncation statistics\n";
+    print STDERR "p3x-generate-circos did not generate truncation statistics\n";
     }
 
     my $tree_dir = "codon_tree";
     my $tree_ingroup_size = 10;
-    
+
     my($tree_svg, @trees_to_upload) = compute_tree($annotated_file, $tree_dir, $tree_ingroup_size);
 
     my @tree_param;
     if (-s $tree_svg)
     {
-	@tree_param = ("-t", $tree_svg);
+    @tree_param = ("-t", $tree_svg);
     }
 
     @cmd = ("create-report",
-	    "-i", $annotated_file,
-	    @tree_param,
-	    @circos_stat_param,
-	    "-o", "FullGenomeReport.html",
-	    "-c", "circos.svg",
-	    "-s", $ss_colors);
-    
+        "-i", $annotated_file,
+        @tree_param,
+        @circos_stat_param,
+        "-o", "FullGenomeReport.html",
+        "-c", "circos.svg",
+        "-s", $ss_colors);
+
     print STDERR "Creating report with command: @cmd\n";
 
     my $rc = system(@cmd);
     if ($rc != 0)
     {
-	warn "Failure rc=$rc creating genome report\n";
+    warn "Failure rc=$rc creating genome report\n";
     }
     else
     {
-	my $ws = $self->app->workspace;
-	$ws->save_file_to_file("FullGenomeReport.html", {}, $report, 'html', 
-						 1, 1, $self->token->token);
-	$ws->save_file_to_file($annotated_file, {}, $saved_genome, 'genome', 
-						 1, 1, $self->token->token);
-	$ws->save_file_to_file("circos.svg", {}, $self->output_folder . "/circos.svg", 'svg',
-			       1, 0, $self->token->token);
-	$ws->save_file_to_file("circos.png", {}, $self->output_folder . "/circos.png", 'png',
-			       1, 0, $self->token->token);
-	$ws->save_file_to_file($ss_colors, {}, $self->output_folder . "/$ss_colors", 'json',
-			       1, 0, $self->token->token);
-	for my $ent (@trees_to_upload)
-	{
-	    my($file, $type) = @$ent;
-	    #
-	    # write to lowercase so we don't obscure our full report, which is upper case
-	    # and is intended to lead the list.
-	    #
-	    my $base = lcfirst(basename($file));
-	    $ws->save_file_to_file($file, {}, $self->output_folder . "/$base", $type,
-			       1, 0, $self->token->token);
-	}
+    my $ws = $self->app->workspace;
+    $ws->save_file_to_file("FullGenomeReport.html", {}, $report, 'html',
+                         1, 1, $self->token->token);
+    $ws->save_file_to_file($annotated_file, {}, $saved_genome, 'genome',
+                         1, 1, $self->token->token);
+    $ws->save_file_to_file("circos.svg", {}, $self->output_folder . "/circos.svg", 'svg',
+                   1, 0, $self->token->token);
+    $ws->save_file_to_file("circos.png", {}, $self->output_folder . "/circos.png", 'png',
+                   1, 0, $self->token->token);
+    $ws->save_file_to_file($ss_colors, {}, $self->output_folder . "/$ss_colors", 'json',
+                   1, 0, $self->token->token);
+    for my $ent (@trees_to_upload)
+    {
+        my($file, $type) = @$ent;
+        #
+        # write to lowercase so we don't obscure our full report, which is upper case
+        # and is intended to lead the list.
+        #
+        my $base = lcfirst(basename($file));
+        $ws->save_file_to_file($file, {}, $self->output_folder . "/$base", $type,
+                   1, 0, $self->token->token);
+    }
 
     }
-    
+
 }
 
 sub await_task_completion
@@ -467,21 +468,21 @@ sub await_task_completion
     my $end_time;
     if ($timeout)
     {
-	my $end_time = time + $timeout;
+    my $end_time = time + $timeout;
     }
 
     my $qtask;
     while (!$end_time || (time < $end_time))
     {
-	my $qtasks = $client->query_tasks([$task_id]);
-	$qtask = $qtasks->{$task_id};
-	my $status = $qtask->{status};
-	print "Queried status = $status: " . Dumper($qtask);
-	
-	last if $final_states{$status};
-	
-	sleep($query_frequency);
-	undef $qtask;
+    my $qtasks = $client->query_tasks([$task_id]);
+    $qtask = $qtasks->{$task_id};
+    my $status = $qtask->{status};
+    print "Queried status = $status: " . Dumper($qtask);
+
+    last if $final_states{$status};
+
+    sleep($query_frequency);
+    undef $qtask;
     }
     return $qtask;
 }
@@ -496,16 +497,16 @@ sub compute_tree
     my $tree_svg;
     my $ingroup_file = "tree_ingroup.txt";
     my @cmd = ("p3x-compute-genome-ingroup-outgroup",
-	    "--method", "mash",
-	    "--ingroup-size", $tree_ingroup_size,
-	    $annotated_file,
-	    $ingroup_file);
+        "--method", "mash",
+        "--ingroup-size", $tree_ingroup_size,
+        $annotated_file,
+        $ingroup_file);
     print "@cmd\n";
     my $rc = system(@cmd);
     if ($rc != 0)
     {
-	warn "Could not compute tree ingroup\n";
-	return undef;
+    warn "Could not compute tree ingroup\n";
+    return undef;
     }
 
     my $max_genes = 5;
@@ -514,34 +515,34 @@ sub compute_tree
     my $bootstrap_reps = 100;
     my $n_threads = 4;
     my $exe = "raxmlHPC-PTHREADS-SSE3";
-    
+
     @cmd = ("p3x-build-codon-tree",
-	    "--maxGenes", $max_genes,
-	    "--maxAllowedDups", $max_allowed_dups,
-	    "--maxGenomesMissing", $max_genomes_missing,
-	    "--bootstrapReps", $bootstrap_reps,
-	    "--threads", $n_threads,
-	    "--outputDirectory", $tree_dir,
-	    "--raxmlExecutable", $exe,
-	    "--genomeObjectFile", $annotated_file,
-	    "--genomeIdsFile", $ingroup_file);
+        "--maxGenes", $max_genes,
+        "--maxAllowedDups", $max_allowed_dups,
+        "--maxGenomesMissing", $max_genomes_missing,
+        "--bootstrapReps", $bootstrap_reps,
+        "--threads", $n_threads,
+        "--outputDirectory", $tree_dir,
+        "--raxmlExecutable", $exe,
+        "--genomeObjectFile", $annotated_file,
+        "--genomeIdsFile", $ingroup_file);
     print "@cmd\n";
     my $rc = system(@cmd);
     if ($rc != 0)
     {
-	warn "Error creating tree\n";
-	return undef;
+    warn "Error creating tree\n";
+    return undef;
     }
 
     #
     # We have our tree; use figtree to render SVG.
     #
-    
+
     my $nexus_file = "$tree_dir/CodonTree.nex";
     if (! -f $nexus_file)
     {
-	warn "Codon tree $nexus_file does not exist";
-	return undef;
+    warn "Codon tree $nexus_file does not exist";
+    return undef;
     }
 
     $tree_svg = "CodonTree.svg";
@@ -549,17 +550,17 @@ sub compute_tree
     $rc = system(@cmd);
     if ($rc != 0)
     {
-	warn "Figtree failed with $rc: @cmd\n";
-	return undef;
+    warn "Figtree failed with $rc: @cmd\n";
+    return undef;
     }
 
     return($tree_svg,
-	   [$tree_svg, 'svg'],
-	   [$ingroup_file, 'txt'],
-	   [$nexus_file, 'txt'],
-	   ["$tree_dir/CodonTree.stats", 'txt'],
-	   ["$tree_dir/CodonTree.nwk", 'nwk']);
-    
+       [$tree_svg, 'svg'],
+       [$ingroup_file, 'txt'],
+       [$nexus_file, 'txt'],
+       ["$tree_dir/CodonTree.stats", 'txt'],
+       ["$tree_dir/CodonTree.nwk", 'nwk']);
+
 }
 
 1;

@@ -3,7 +3,7 @@
 # Initial version that does not internally fork and report output; instead
 # is designed to be executed by p3x-app-shepherd.
 #
-
+no warnings 'shadow';
 use Bio::KBase::AppService::AppScript;
 use Bio::KBase::AppService::CodonTreeReport;
 use P3DataAPI;
@@ -18,9 +18,10 @@ use File::Temp;
 use JSON::XS;
 use Getopt::Long::Descriptive;
 
+
 my($opt, $usage) = describe_options("%c %o app-definition.json param-values.json",
-				    ["preflight=s" => "Run app preflight and write results to given file."],
-				    ["help|h" => "Show this help message."]);
+                    ["preflight=s" => "Run app preflight and write results to given file."],
+                    ["help|h" => "Show this help message."]);
 print($usage->text), exit 0 if $opt->help;
 die($usage->text) if @ARGV != 2;
 my $app_def_file = shift;
@@ -112,22 +113,22 @@ if ($ok)
     $ok = IPC::Run::run(\@cmd);
     if ($ok)
     {
-	$svg_tree = read_file("$out_dir/codontree.svg");
+    $svg_tree = read_file("$out_dir/codontree.svg");
     }
     else
     {
-	warn "Error $? running @cmd\n";
+    warn "Error $? running @cmd\n";
     }
 
     my @cmd = ('figtree', '-graphic', 'PNG',
-	       "-width", "1920",
-	       "-height", "1080",
-	       "$out_dir/codontree.nex", "$out_dir/codontree.png");
+           "-width", "1920",
+           "-height", "1080",
+           "$out_dir/codontree.nex", "$out_dir/codontree.png");
 
     $ok = IPC::Run::run(\@cmd);
     if (!$ok)
     {
-	warn "Error $? running @cmd\n";
+    warn "Error $? running @cmd\n";
     }
 }
 
@@ -136,32 +137,32 @@ if ($ok)
     my $fams = [];
     if (open(PG, "<", "$out_dir/codontree.singleCopyPgfams.txt"))
     {
-	while (<PG>)
-	{
-	    print "Got $_";
-	    if (/(P[A-Z]+_\d+)/)
-	    {
-		push(@$fams, $1);
-	    }
-	}
-	close(PG);
+    while (<PG>)
+    {
+        print "Got $_";
+        if (/(P[A-Z]+_\d+)/)
+        {
+        push(@$fams, $1);
+        }
+    }
+    close(PG);
     }
     else
     {
-	warn "Cannot open $out_dir/codontree.singleCopyPgfams.txt: $!\n";
+    warn "Cannot open $out_dir/codontree.singleCopyPgfams.txt: $!\n";
     }
 
     my @stats;
     if (open(STAT, "<", "$out_dir/codontree_codontree_analysis.stats"))
     {
-	$_ = <STAT>;
-	while (<STAT>)
-	{
-	    chomp;
-	    my($key, $val) = /^(\S+)\s+(.*)/;
-	    push(@stats, { key => $key, value => $val });
-	}
-	close(STAT);
+    $_ = <STAT>;
+    while (<STAT>)
+    {
+        chomp;
+        my($key, $val) = /^(\S+)\s+(.*)/;
+        push(@stats, { key => $key, value => $val });
+    }
+    close(STAT);
     }
 
     #
@@ -169,22 +170,22 @@ if ($ok)
     #
     if (open(FH, ">", "$out_dir/TreeReport.html"))
     {
-	my @genomes;
-	for my $id (@$genome_ids)
-	{
-	    my $link = "https://www.patricbrc.org/view/Genome/$id";
-	    push(@genomes, { genome_id => $id, genome_name => $genome_names->{$id}->[0], link => $link });
-	}
-	Bio::KBase::AppService::CodonTreeReport::write_report($app->task_id, $params, $fams, \@genomes, $svg_tree, \@stats, \*FH);
-	close(FH);
+    my @genomes;
+    for my $id (@$genome_ids)
+    {
+        my $link = "https://www.patricbrc.org/view/Genome/$id";
+        push(@genomes, { genome_id => $id, genome_name => $genome_names->{$id}->[0], link => $link });
+    }
+    Bio::KBase::AppService::CodonTreeReport::write_report($app->task_id, $params, $fams, \@genomes, $svg_tree, \@stats, \*FH);
+    close(FH);
     }
     else
     {
-	warn "Cannot write $out_dir/TreeReport.html: $!";
-	$ok = 0;
+    warn "Cannot write $out_dir/TreeReport.html: $!";
+    $ok = 0;
     }
-    
-	    
+
+
 }
 
 save_output_files($app, $out_dir);
@@ -200,10 +201,10 @@ sub preflight
     my($genome_ids, $opt_genome_ids) = verify_genome_ids($app, $params);
 
     my $pf = {
-	cpu => 1,
-	memory => "32G",
-	runtime => 0,
-	storage => 0,
+    cpu => 1,
+    memory => "32G",
+    runtime => 0,
+    storage => 0,
     };
     open(PF, ">", $preflight_out) or die "Cannot write preflight file $preflight_out: $!";
     my $js = JSON::XS->new->pretty(1)->encode($pf);
@@ -221,7 +222,7 @@ sub verify_genome_ids
 
     if (ref($glist) ne 'ARRAY' || @$glist == 0)
     {
-	die "The CodonTree application requires at least one genome to be specified\n";
+    die "The CodonTree application requires at least one genome to be specified\n";
     }
 
     my $api = P3DataAPI->new;
@@ -230,38 +231,38 @@ sub verify_genome_ids
     my(@bad, @opt_bad);
     for my $g (@$glist)
     {
-	if (exists($names->{$g}))
-	{
-	    print "Processing genome $g $names->{$g}->[0]\n";
-	}
-	else
-	{
-	    push(@bad, $g);
-	}
+    if (exists($names->{$g}))
+    {
+        print "Processing genome $g $names->{$g}->[0]\n";
+    }
+    else
+    {
+        push(@bad, $g);
+    }
     }
     if (@bad)
     {
-	warn "Cannot find the following genomes to process: @bad\n";
+    warn "Cannot find the following genomes to process: @bad\n";
     }
     for my $g (@$opt_glist)
     {
-	if (exists($names->{$g}))
-	{
-	    print "Processing optional genome $g $names->{$g}->[0]\n";
-	}
-	else
-	{
-	    push(@opt_bad, $g);
-	}
+    if (exists($names->{$g}))
+    {
+        print "Processing optional genome $g $names->{$g}->[0]\n";
     }
-    
+    else
+    {
+        push(@opt_bad, $g);
+    }
+    }
+
     if (@opt_bad)
     {
-	warn "Cannot find the following optional genomes to process: @opt_bad\n";
+    warn "Cannot find the following optional genomes to process: @opt_bad\n";
     }
     if (@bad || @opt_bad)
     {
-	die "CodonTree cannot continue due to missing genome errors\n";
+    die "CodonTree cannot continue due to missing genome errors\n";
     }
     return($glist, $opt_glist, $names);
 }
@@ -269,37 +270,37 @@ sub verify_genome_ids
 sub save_output_files
 {
     my($app, $output) = @_;
-    
+
     my %suffix_map = (fastq => 'reads',
-		      txt => 'txt',
-		      png => 'png',
-		      svg => 'svg',
-		      nwk => 'nwk',
-		      out => 'txt',
-		      err => 'txt',
-		      html => 'html');
+              txt => 'txt',
+              png => 'png',
+              svg => 'svg',
+              nwk => 'nwk',
+              out => 'txt',
+              err => 'txt',
+              html => 'html');
 
     if (opendir(D, $output))
     {
-	while (my $f = readdir(D))
-	{
-	    my $path = "$output/$f";
+    while (my $f = readdir(D))
+    {
+        my $path = "$output/$f";
 
-	    my $p2 = $f;
-	    $p2 =~ s/\.gz$//;
-	    my($suffix) = $p2 =~ /\.([^.]+)$/;
-	    my $type = $suffix_map{$suffix} // "txt";
+        my $p2 = $f;
+        $p2 =~ s/\.gz$//;
+        my($suffix) = $p2 =~ /\.([^.]+)$/;
+        my $type = $suffix_map{$suffix} // "txt";
 
-	    if (-f $path)
-	    {
-		print "Save $path type=$type\n";
-		$app->workspace->save_file_to_file($path, {}, $app->result_folder . "/$f", $type, 1, 0, $app->token->token);
-	    }
-	}
-	    
+        if (-f $path)
+        {
+        print "Save $path type=$type\n";
+        $app->workspace->save_file_to_file($path, {}, $app->result_folder . "/$f", $type, 1, 0, $app->token->token);
+        }
+    }
+
     }
     else
     {
-	warn "Cannot opendir $output: $!";
+    warn "Cannot opendir $output: $!";
     }
 }

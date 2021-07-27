@@ -5,7 +5,7 @@ use strict;
 use Data::Dumper;
 use LWP::UserAgent;
 use HTTP::Headers;
-use JSON::XS;
+use JSON::XS qw();
 use File::Spec;
 use Bio::KBase::AppService::Awe;
 
@@ -25,7 +25,7 @@ sub set_impl
 
 hook before => sub {
     if (!session('user') && request->dispatch_path !~ m,^/login,) {
-	forward '/monitor/login', { requested_path => request->dispatch_path };
+    forward '/monitor/login', { requested_path => request->dispatch_path };
     }
 };
 
@@ -45,30 +45,30 @@ get '/' => sub {
     my @jobs;
     if ($res)
     {
-	for my $t (@{$res->{data}})
-	{
-	    my $d = {};
-	    my $r = $impl->_awe_to_task($t);
+    for my $t (@{$res->{data}})
+    {
+        my $d = {};
+        my $r = $impl->_awe_to_task($t);
 
-	    $d->{id} = $t->{id};
-	    $d->{user} = $t->{info}->{user};
-	    $d->{started} = $t->{info}->{startedtime};
-	    $d->{completed} = $t->{info}->{completedtime};
-	    $d->{app} = $t->{info}->{userattr}->{app_id};
-	    $d->{state} = $t->{state};
+        $d->{id} = $t->{id};
+        $d->{user} = $t->{info}->{user};
+        $d->{started} = $t->{info}->{startedtime};
+        $d->{completed} = $t->{info}->{completedtime};
+        $d->{app} = $t->{info}->{userattr}->{app_id};
+        $d->{state} = $t->{state};
 
-	    push @jobs, $d;
-	    
-	}
+        push @jobs, $d;
+
+    }
     }
     else
     {
-	print "$error\n";
+    print "$error\n";
     }
-    
+
     template 'index' => { title => "App service monitor",
-			  jobs => \@jobs,
-			  };
+              jobs => \@jobs,
+              };
 };
 
 get '/task/:task_id' => sub {
@@ -79,11 +79,11 @@ get '/task/:task_id' => sub {
 
     my($res, $error) = $awe->job($task_id);
     my %vars = (id => $task_id,
-		details => $details,
-		awe => $res,
-		awe_txt => $json->encode($res),
-		title => "Task $task_id",
-		);
+        details => $details,
+        awe => $res,
+        awe_txt => $json->encode($res),
+        title => "Task $task_id",
+        );
     template 'task', \%vars;
 };
 
@@ -103,19 +103,19 @@ post '/login' => sub {
     $headers->authorization_basic(param('user'), param('password'));
     $headers{Authorization} = $headers->header('Authorization');
     my $res = $ua->get("http://rast.nmpdr.org/goauth/token?grant_type=client_credentials",
-		       %headers);
+               %headers);
     if ($res->is_success)
     {
-	my $token = decode_json($res->content);
-	session user => $token->{user_name};
-	session token => $token->{access_token};
-	redirect param('path') || '/';
+    my $token = decode_json($res->content);
+    session user => $token->{user_name};
+    session token => $token->{access_token};
+    redirect param('path') || '/';
     }
     else
     {
-	redirect("/login?failed=1");
+    redirect("/login?failed=1");
     }
 };
 
 1;
-    
+

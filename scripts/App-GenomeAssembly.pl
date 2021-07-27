@@ -8,7 +8,7 @@ use Data::Dumper;
 use File::Temp;
 use File::Basename;
 use IPC::Run 'run';
-use POSIX;
+use POSIX qw();
 
 use Bio::KBase::AppService::AppScript;
 
@@ -59,9 +59,9 @@ sub process_reads {
 
     if (@large_files)
     {
-	print STDERR "Enabling curl due to large files:\n";
-	print "\t$_->[0] $_->[1]\n" foreach @large_files;
-	push(@ai_params, "--curl");
+    print STDERR "Enabling curl due to large files:\n";
+    print "\t$_->[0] $_->[1]\n" foreach @large_files;
+    push(@ai_params, "--curl");
     }
 
     my $out_tmp = "$tmpdir/$output_name";
@@ -104,52 +104,52 @@ sub process_reads {
     print STDERR strftime("%Y-%m-%d %H:%M:%S", localtime $start) . ": job $arast_job starting\n";
     while (1)
     {
-	my $now = time;
-	my $status;
-	my $err;
-	my @stat = ($ar_stat, "-j", $arast_job);
-	my $stat_ok = run(\@stat, ">", \$status, "2>", \$err);
+    my $now = time;
+    my $status;
+    my $err;
+    my @stat = ($ar_stat, "-j", $arast_job);
+    my $stat_ok = run(\@stat, ">", \$status, "2>", \$err);
 
-	if (!$stat_ok)
-	{
-	    die "Error code $? running status command @stat. Error output:\n$err";
-	}
-	if ($status eq '')
-	{
-	    die "Status command @stat did not return output";
-	}
+    if (!$stat_ok)
+    {
+        die "Error code $? running status command @stat. Error output:\n$err";
+    }
+    if ($status eq '')
+    {
+        die "Status command @stat did not return output";
+    }
 
-	chomp $status;
-	if ($status ne $last_status || ($now - $last_report > 600))
-	{
-	    print STDERR strftime("%Y-%m-%d %H:%M:%S", localtime $now) . ": job $arast_job status: $status\n";
-	    $last_report = $now;
-	    $last_status = $status
-	}
+    chomp $status;
+    if ($status ne $last_status || ($now - $last_report > 600))
+    {
+        print STDERR strftime("%Y-%m-%d %H:%M:%S", localtime $now) . ": job $arast_job status: $status\n";
+        $last_report = $now;
+        $last_status = $status
+    }
 
-	if ($status =~ /complete|fail/i)
-	{
-	    print STDERR strftime("%Y-%m-%d %H:%M:%S", localtime $now) . ": job $arast_job has complete status: $status\n";
-	    $finish_status = $status;
-	    last;
-	}
-	sleep 60;
+    if ($status =~ /complete|fail/i)
+    {
+        print STDERR strftime("%Y-%m-%d %H:%M:%S", localtime $now) . ": job $arast_job has complete status: $status\n";
+        $finish_status = $status;
+        last;
+    }
+    sleep 60;
     }
 
     if ($finish_status =~ /error|fail/i)
     {
-	print STDERR "Job $arast_job finished with error status: $finish_status\n";
-	my $report;
-	my $err;
-	my $ok = run([$ar_get, "-l", "-j", $arast_job], ">", \$report, "2>", \$err);
-	$ok or warn "Error code $? retrieving assembly job log. Stderr:\n$err";
-	print STDERR "\nAssembly job log for failed job $arast_job:\n$report\n";
-	die "Assembly failed";
+    print STDERR "Job $arast_job finished with error status: $finish_status\n";
+    my $report;
+    my $err;
+    my $ok = run([$ar_get, "-l", "-j", $arast_job], ">", \$report, "2>", \$err);
+    $ok or warn "Error code $? retrieving assembly job log. Stderr:\n$err";
+    print STDERR "\nAssembly job log for failed job $arast_job:\n$report\n";
+    die "Assembly failed";
     }
 
     print STDERR "Running pull: @get_cmd -j $arast_job | @filter_cmd\n";
     my $pull_ok = run([@get_cmd, "-j", $arast_job], "|",
-		      \@filter_cmd, '>', $out_tmp);
+              \@filter_cmd, '>', $out_tmp);
     $pull_ok or die "Error retrieving results from job $arast_job\n";
 
     my $download_ok = run([$ar_get, "-j", $arast_job, "-o", $tmpdir]);
@@ -174,17 +174,17 @@ sub process_reads {
     push @outputs, ["$out_tmp.fa", 'contigs'];
 
     for (@outputs) {
-	my ($ofile, $type) = @$_;
-	if (-f "$ofile") {
+    my ($ofile, $type) = @$_;
+    if (-f "$ofile") {
             my $filename = basename($ofile);
             print STDERR "Output folder = $output_folder\n";
             print STDERR "Saving $ofile => $output_folder/$filename ...\n";
-	    $app->workspace->save_file_to_file("$ofile", {}, "$output_folder/$filename", $type, 1,
-					       (-s "$ofile" > 10_000 ? 1 : 0), # use shock for larger files
-					       $global_token);
-	} else {
-	    warn "Missing desired output file $ofile\n";
-	}
+        $app->workspace->save_file_to_file("$ofile", {}, "$output_folder/$filename", $type, 1,
+                           (-s "$ofile" > 10_000 ? 1 : 0), # use shock for larger files
+                           $global_token);
+    } else {
+        warn "Missing desired output file $ofile\n";
+    }
     }
 
     # my $ws = get_ws();
@@ -254,7 +254,7 @@ sub get_srr_lib {
 
     my ($run_out, $run_err, $run_ok);
     print STDERR "Running @cmd\n";
-    my $run_ok = run(\@cmd, '>', \$run_out, '2>', \$run_err);
+    $run_ok = run(\@cmd, '>', \$run_out, '2>', \$run_err);
     $run_ok or die "Error downloading SRR data. Command=@cmd, stdout:\n$run_out\nstderr:\n$run_err\n";
 
     my $lib;
@@ -292,23 +292,23 @@ sub get_ws_file {
     system("ls -la $tmpdir");
 
     eval {
-	$ws->copy_files_to_handles(1, $token, [[$id, $fh]]);
+    $ws->copy_files_to_handles(1, $token, [[$id, $fh]]);
     };
     if ($@)
     {
-	die "ERROR getting file $id\n$@\n";
+    die "ERROR getting file $id\n$@\n";
     }
     close($fh);
     if (-s $file == 0)
     {
-	die "Zero length download for file $file from $id\n";
+    die "Zero length download for file $file from $id\n";
     }
     #
     # Hack hack. Set a flag if any input file is >= 3GB.
     #
     if (-s $file > 3_000_000_000)
     {
-	push(@large_files, [$file, -s $file]);
+    push(@large_files, [$file, -s $file]);
     }
     print "$id $file:\n";
     system("ls -la $tmpdir");
@@ -371,33 +371,32 @@ sub parse_srr_id {
     my ($tmpdir, $id) = @_;
     my @params;
     my $lib = get_srr_lib($tmpdir, $id);
-    my @params;
     if ($lib->{read1} && $lib->{read2}) {
         push @params, "--pair";
         push @params, $lib->{read1};
         push @params, $lib->{read2};
 
-	system("ls", "-l", $lib->{read1}, $lib->{read2});
+    system("ls", "-l", $lib->{read1}, $lib->{read2});
 
-	for my $f ($lib->{read1}, $lib->{read2})
-	{
-	    if (-s $f > 3_000_000_000)
-	    {
-		print "Pushing large files $f\n";
-		push(@large_files, [$f, -s $f]);
-	    }
-	}
-	
+    for my $f ($lib->{read1}, $lib->{read2})
+    {
+        if (-s $f > 3_000_000_000)
+        {
+        print "Pushing large files $f\n";
+        push(@large_files, [$f, -s $f]);
+        }
+    }
+
     }   # unpaired reads are a result of read filtering; ignore them when paired reads are found
     elsif ($lib->{read}) {
         push @params, "--single";
         push @params, $lib->{read};
-	system("ls", "-l", $lib->{read});
-	if (-s $lib->{read} > 3_000_000_000)
-	{
-	    print "Pushing large files $lib->{read}\n";
-	    push(@large_files, [$lib->{read}, -s $lib->{read}]);
-	}
+    system("ls", "-l", $lib->{read});
+    if (-s $lib->{read} > 3_000_000_000)
+    {
+        print "Pushing large files $lib->{read}\n";
+        push(@large_files, [$lib->{read}, -s $lib->{read}]);
+    }
     }
     return @params;
 }

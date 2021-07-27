@@ -8,6 +8,7 @@ use File::Temp;
 use IPC::Run;
 use Bio::P3::Workspace::WorkspaceClientExt;
 use P3AuthToken;
+no warnings 'shadow';
 
 use base 'Class::Accessor';
 
@@ -19,32 +20,32 @@ __PACKAGE__->mk_accessors(qw(json user key host));
 
 our %job_states =
         (
-	      BOOT_FAIL => 'F',
-	      CANCELLED => 'F',
-	      COMPLETED => 'C',
-	      DEADLINE => 'F',
-	      FAILED => 'F',
-	      NODE_FAIL => 'F',
-	      OUT_OF_MEMORY => 'F',
-	      PENDING => 0,
-	      PREEMPTED => 0,
-	      RUNNING => 0,
-	      REQUEUED => 0,
-	      RESIZING => 0,
-	      REVOKED => 'F',
-	      SUSPENDED => 0,
-	      TIMEOUT => 'F',
-	     );
+          BOOT_FAIL => 'F',
+          CANCELLED => 'F',
+          COMPLETED => 'C',
+          DEADLINE => 'F',
+          FAILED => 'F',
+          NODE_FAIL => 'F',
+          OUT_OF_MEMORY => 'F',
+          PENDING => 0,
+          PREEMPTED => 0,
+          RUNNING => 0,
+          REQUEUED => 0,
+          RESIZING => 0,
+          REVOKED => 'F',
+          SUSPENDED => 0,
+          TIMEOUT => 'F',
+         );
 
 sub new
 {
     my($class, %opts) = @_;
 
     my $self = {
-	json => JSON::XS->new->pretty(1),
-	host => 'bebop.lcrc.anl.gov',
+    json => JSON::XS->new->pretty(1),
+    host => 'bebop.lcrc.anl.gov',
 #	host => 'beboplogin1.lcrc.anl.gov',
-	%opts,
+    %opts,
     };
     return bless $self, $class;
 }
@@ -60,31 +61,31 @@ sub assemble_paired_end_libs
     my $uncomp_size;
     for my $f ($libs->{read1}, $libs->{read2})
     {
-	my $s = $ws->stat($f);
-	
-	if (!$s)
-	{
-	    push(@errs, "File $f does not exist");
-	}
-	elsif ($s->size == 0)
-	{
-	    push(@errs, "File $f has zero size");
-	}
-	else
-	{
-	    if ($ws->file_is_gzipped($f))
-	    {
-		$comp_size += $s->size;
-	    } else {
-		$uncomp_size += $s->size;
-	    }
-	}
+    my $s = $ws->stat($f);
+
+    if (!$s)
+    {
+        push(@errs, "File $f does not exist");
+    }
+    elsif ($s->size == 0)
+    {
+        push(@errs, "File $f has zero size");
+    }
+    else
+    {
+        if ($ws->file_is_gzipped($f))
+        {
+        $comp_size += $s->size;
+        } else {
+        $uncomp_size += $s->size;
+        }
+    }
     }
     if (@errs)
     {
-	die "Error checking input data: @errs\n";
+    die "Error checking input data: @errs\n";
     }
-	
+
     my $est_comp = $comp_size + 0.75 * $uncomp_size;
     $est_comp /= 1e6;
     #
@@ -99,15 +100,15 @@ sub assemble_paired_end_libs
     my $est_storage = int(1.3e6 * $est_comp / 0.75);
 
     print "est_storage=$est_storage\n";
-    
+
     my $partition = "bdwall";
 
     if ($est_storage > 3e9)
     {
-	$partition = "bdwd";
+    $partition = "bdwd";
     }
     my $input = $self->json->encode($libs);
-    
+
     my $top = '/home/olson/P3/bebop/dev_container';
     my $rt = '/home/olson/P3/bebop/runtime';
 
@@ -146,32 +147,32 @@ ENDBATCH
 
     if (1)
     {
-	my $dbatch = $batch;
-	$dbatch =~ s/sig=[a-z0-9]+/sig=XXX/g;
-	print STDERR "Submitting:\n$dbatch\n";
+    my $dbatch = $batch;
+    $dbatch =~ s/sig=[a-z0-9]+/sig=XXX/g;
+    print STDERR "Submitting:\n$dbatch\n";
     }
-    
+
     my $out;
     my($fh, $handle) = $self->run(["sbatch", "--parsable"], $batch, \$out);
     my $job;
 
     if (!$handle->finish)
     {
-	die "Sbatch submit failed: $?";
+    die "Sbatch submit failed: $?";
     }
 
     print "Output is $out\n";
     if ($out =~ /(\d+)/)
     {
-	$job = $1;
-	print "Have job $job\n";
+    $job = $1;
+    print "Have job $job\n";
     }
 
 
     if (!$job)
     {
-	print $batch;
-	die "Job did not start\n";
+    print $batch;
+    die "Job did not start\n";
     }
     print "Submitted job $job\n";
 
@@ -179,26 +180,26 @@ ENDBATCH
     my $final_res;
     while (1)
     {
-	my $res = $self->run_sacct([$job]);
-	my($sword) = $res->{$job}->{State} =~ /^(\S+)/;
-	my $state = $job_states{$sword};
-	print Dumper($state, $res);
-	if ($state)
-	{
-	    $final_state = $state;
-	    $final_res = $res->{$job};
-	    last;
-	}
-	sleep 120;
+    my $res = $self->run_sacct([$job]);
+    my($sword) = $res->{$job}->{State} =~ /^(\S+)/;
+    my $state = $job_states{$sword};
+    print Dumper($state, $res);
+    if ($state)
+    {
+        $final_state = $state;
+        $final_res = $res->{$job};
+        last;
+    }
+    sleep 120;
     }
 
     if ($final_state eq 'C')
     {
-	print "Assembly successful\n";
+    print "Assembly successful\n";
     }
     else
     {
-	die "Assembly failed with state $final_res->{$job}->{State}\n";
+    die "Assembly failed with state $final_res->{$job}->{State}\n";
     }
 }
 
@@ -220,12 +221,12 @@ sub run_sacct
 
     my @params = qw(JobID State Account User MaxRSS ExitCode Elapsed Start End NodeList);
     my %col = map { $params[$_] => $_ } 0..$#params;
-    
+
     my @cmd = ('sacct', '-j', $jobspec,
-	                      '-o', join(",", @params),
-	                      '--units', 'M',
-	                      '--parsable', '--noheader');
-    
+                          '-o', join(",", @params),
+                          '--units', 'M',
+                          '--parsable', '--noheader');
+
 
     my($fh, $handle) = $self->run(\@cmd);
 
@@ -240,22 +241,22 @@ sub run_sacct
 
     while (<$fh>)
     {
-	chomp;
-	my @a = split(/\|/);
-	my %vals = map { $_ => $a[$col{$_}] } @params;
-	my($id, $isbatch) = $vals{JobID}  =~ /(\d+)(\.batch)?/;
-	# print "$id: " . Dumper(\%vals);
-	
-	if ($isbatch)
-	{
-	    $jobinfo{$id} = { %vals };
-	}
-	else
-	{
-	    $jobinfo{$id}->{Start} = $vals{Start} unless $vals{Start} eq 'Unknown';
-	    $jobinfo{$id}->{State} = $vals{State};
-	    $jobinfo{$id}->{NodeList} = $vals{NodeList};
-	}
+    chomp;
+    my @a = split(/\|/);
+    my %vals = map { $_ => $a[$col{$_}] } @params;
+    my($id, $isbatch) = $vals{JobID}  =~ /(\d+)(\.batch)?/;
+    # print "$id: " . Dumper(\%vals);
+
+    if ($isbatch)
+    {
+        $jobinfo{$id} = { %vals };
+    }
+    else
+    {
+        $jobinfo{$id}->{Start} = $vals{Start} unless $vals{Start} eq 'Unknown';
+        $jobinfo{$id}->{State} = $vals{State};
+        $jobinfo{$id}->{NodeList} = $vals{NodeList};
+    }
     }
 
     return \%jobinfo;
@@ -266,38 +267,38 @@ sub run
     my($self, $cmd, $input, $output) = @_;
 
     my $shcmd = join(" ", map { "'$_'" }  @$cmd);
-    
+
     my $new = ["ssh",
-	       "-l", $self->user,
-	       "-i", $self->key,
-	       $self->host,
-	       "bash -l -c \"$shcmd\"",
-	       ];
+           "-l", $self->user,
+           "-i", $self->key,
+           $self->host,
+           "bash -l -c \"$shcmd\"",
+           ];
 
     my $fh;
 
     my @inp;
     if ($input)
     {
-	@inp = ("<", \$input);
+    @inp = ("<", \$input);
     }
     my @out;
     if ($output)
     {
-	@out = (">", $output);
+    @out = (">", $output);
     }
     else
     {
-	$fh = IO::Handle->new;
-	@out = (">pipe", $fh);
+    $fh = IO::Handle->new;
+    @out = (">pipe", $fh);
     }
-	
+
     # print Dumper($new, \@inp, \@out);
     my $h = IPC::Run::start($new, @inp, @out);
     if (!$h)
     {
-	warn "Error $? running : @$cmd\n";
-	return;
+    warn "Error $? running : @$cmd\n";
+    return;
     }
     return ($fh, $h);
 }

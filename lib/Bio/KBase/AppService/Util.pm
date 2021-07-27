@@ -14,7 +14,7 @@ sub new
     my($class, $impl) = @_;
 
     my $self = {
-	impl => $impl,
+    impl => $impl,
     };
     return bless $self, $class;
 }
@@ -25,7 +25,7 @@ sub start_app
 
     if (!$self->submissions_enabled($app_id, $ctx))
     {
-	die "App service submissions are disabled\n";
+    die "App service submissions are disabled\n";
     }
 
     my $json = JSON::XS->new->ascii->pretty(1);
@@ -38,7 +38,7 @@ sub start_app
 
     if (!$app)
     {
-	die "Could not find app for id $app_id\n";
+    die "Could not find app for id $app_id\n";
     }
 
     my $awe = Bio::KBase::AppService::Awe->new($self->impl->{awe_server}, $ctx->token);
@@ -55,44 +55,44 @@ sub start_app
     my $task_file_id = lc($gen->to_string($task_file_uuid));
 
     my $userattr = {
-	app_id => $app_id,
-	parameters => $param_str,
-	workspace => $start_params->{workspace},
-	parent_task => $start_params->{parent_id},
-	task_file_id => $task_file_id,
+    app_id => $app_id,
+    parameters => $param_str,
+    workspace => $start_params->{workspace},
+    parent_task => $start_params->{parent_id},
+    task_file_id => $task_file_id,
     };
 
     my $clientgroup = $self->impl->{awe_clientgroup};
 
     if ($app_id eq 'MetagenomeBinning' && $task_params->{contigs})
     {
-	#  Hack to send contigs-only jobs to a different clientgroup
-	$clientgroup .= "-fast";
-	print STDERR "Redirecting job to fast queue\n" . Dumper($task_params);
+    #  Hack to send contigs-only jobs to a different clientgroup
+    $clientgroup .= "-fast";
+    print STDERR "Redirecting job to fast queue\n" . Dumper($task_params);
     }
     elsif ($app_id eq 'PhylogeneticTree' && $task_params->{full_tree_method} ne 'ml')
     {
-	#  Hack to send non-raxml jobs to a different clientgroup
-	$clientgroup .= "-fast";
-	print STDERR "Redirecting job to fast queue\n" . Dumper($task_params);
+    #  Hack to send non-raxml jobs to a different clientgroup
+    $clientgroup .= "-fast";
+    print STDERR "Redirecting job to fast queue\n" . Dumper($task_params);
     }
     if ($task_params->{_clientgroup})
     {
-	$clientgroup = $task_params->{_clientgroup};
+    $clientgroup = $task_params->{_clientgroup};
     }
-	
+
     my $job = $awe->create_job_description(pipeline => 'AppService',
-					   name => $app_id,
-					   project => 'AppService',
-					   user => $ctx->user_id,
-					   clientgroups => $clientgroup,
-					   userattr => $userattr,
-					   priority => 2,
-					  );
+                       name => $app_id,
+                       project => 'AppService',
+                       user => $ctx->user_id,
+                       clientgroups => $clientgroup,
+                       userattr => $userattr,
+                       priority => 2,
+                      );
 
     my $shock = Bio::KBase::AppService::Shock->new($self->impl->{shock_server}, $ctx->token);
     $shock->tag_nodes(task_file_id => $task_file_id,
-		      app_id => $app_id);
+              app_id => $app_id);
     my $params_node_id = $shock->put_file_data($param_str, "params");
 
     my $app_node_id = $shock->put_file_data($json->encode($app), "app");
@@ -102,7 +102,7 @@ sub start_app
 
 #    my $stdout_file = $awe->create_job_file("stdout.txt", $shock->server);
 #    my $stderr_file = $awe->create_job_file("stderr.txt", $shock->server);
-    
+
     my $awe_stdout_file = $awe->create_job_file("awe_stdout.txt", $shock->server);
     my $awe_stderr_file = $awe->create_job_file("awe_stderr.txt", $shock->server);
 
@@ -110,24 +110,24 @@ sub start_app
 
     my $task_userattr = {};
     my $task_id = $job->add_task($app->{script},
-				 $app->{script},
-				 join(" ",
-				      $appserv_info_url,
-				      $app_file->in_name, $params_file->in_name,
-				      # $stdout_file->name, $stderr_file->name,
-				     ),
-				 [],
-				 [$app_file, $params_file],
-				 [$awe_stdout_file, $awe_stderr_file],
-				 # [$stdout_file, $stderr_file, $awe_stdout_file, $awe_stderr_file],
-				 undef,
-				 undef,
-				 $task_userattr,
-				);
+                 $app->{script},
+                 join(" ",
+                      $appserv_info_url,
+                      $app_file->in_name, $params_file->in_name,
+                      # $stdout_file->name, $stderr_file->name,
+                     ),
+                 [],
+                 [$app_file, $params_file],
+                 [$awe_stdout_file, $awe_stderr_file],
+                 # [$stdout_file, $stderr_file, $awe_stdout_file, $awe_stderr_file],
+                 undef,
+                 undef,
+                 $task_userattr,
+                );
 
     # print STDERR Dumper($job);
 
-    my $task_id = $awe->submit($job);
+    $task_id = $awe->submit($job);
 
     my $task = $self->impl->_lookup_task($awe, $task_id);
 
@@ -149,26 +149,26 @@ sub enumerate_apps
     my $json = JSON::XS->new->relaxed(1);
 
     my @list;
-    
+
     if (!$dir) {
-	warn "No app directory specified\n";
+    warn "No app directory specified\n";
     } elsif (opendir($dh, $dir)) {
-	my @files = sort { $a cmp $b } grep { /\.json$/ && -f "$dir/$_" } readdir($dh);
-	closedir($dh);
-	for my $f (@files)
-	{
-	    my $obj = $json->decode(scalar read_file("$dir/$f"));
-	    if (!$obj)
-	    {
-		warn "Could not read $dir/$f\n";
-	    }
-	    else
-	    {
-		push(@list, $obj);
-	    }
-	}
+    my @files = sort { $a cmp $b } grep { /\.json$/ && -f "$dir/$_" } readdir($dh);
+    closedir($dh);
+    for my $f (@files)
+    {
+        my $obj = $json->decode(scalar read_file("$dir/$f"));
+        if (!$obj)
+        {
+        warn "Could not read $dir/$f\n";
+        }
+        else
+        {
+        push(@list, $obj);
+        }
+    }
     } else {
-	warn "Could not open app-dir $dir: $!";
+    warn "Could not open app-dir $dir: $!";
     }
     return @list;
 }
@@ -181,7 +181,7 @@ sub find_app
     my $dir = $self->impl->{app_dir};
 
     my @list;
-    
+
     #
     # We allow relaxed parsing of app definition files so that
     # we may put comments into them.
@@ -190,27 +190,27 @@ sub find_app
     my $json = JSON::XS->new->relaxed(1);
 
     if (!$dir) {
-	warn "No app directory specified\n";
+    warn "No app directory specified\n";
     } elsif (opendir($dh, $dir)) {
-	my @files = grep { /\.json$/ && -f "$dir/$_" } readdir($dh);
-	closedir($dh);
-	for my $f (@files)
-	{
-	    my $obj = $json->decode(scalar read_file("$dir/$f"));
-	    if (!$obj)
-	    {
-		warn "Could not read $dir/$f\n";
-	    }
-	    else
-	    {
-		if ($obj->{id} eq $app_id)
-		{
-		    return $obj;
-		}
-	    }
-	}
+    my @files = grep { /\.json$/ && -f "$dir/$_" } readdir($dh);
+    closedir($dh);
+    for my $f (@files)
+    {
+        my $obj = $json->decode(scalar read_file("$dir/$f"));
+        if (!$obj)
+        {
+        warn "Could not read $dir/$f\n";
+        }
+        else
+        {
+        if ($obj->{id} eq $app_id)
+        {
+            return $obj;
+        }
+        }
+    }
     } else {
-	warn "Could not open app-dir $dir: $!";
+    warn "Could not open app-dir $dir: $!";
     }
     return undef;
 }
@@ -225,22 +225,22 @@ sub service_status
 
     if ($self->token_user_is_admin($ctx->{token}))
     {
-	return (1, "");
+    return (1, "");
     }
-    
+
     my $sf = $self->impl->{status_file};
     if ($sf && open(my $fh, "<", $sf))
     {
-	my $statline = <$fh>;
-	my($status) = $statline =~ /(\d+)/;
-	$status //= 0;
-	my $txt = join("", <$fh>);
-	close($fh);
-	return($status, $txt);
+    my $statline = <$fh>;
+    my($status) = $statline =~ /(\d+)/;
+    $status //= 0;
+    my $txt = join("", <$fh>);
+    close($fh);
+    return($status, $txt);
     }
     else
     {
-	return(1, "");
+    return(1, "");
     }
 }
 
@@ -263,21 +263,21 @@ sub submissions_enabled
 
     if ($self->token_user_is_admin($ctx->token))
     {
-	return 1;
+    return 1;
     }
 
     if ($stat && defined($app_id) && $self->impl->{status_file})
     {
-	my $app_status_dir = dirname($self->impl->{status_file});
-	my $app_status_file = "$app_status_dir/$app_id.status";
-	if (open(my $fh, $app_status_file))
-	{
-	    my $statline = <$fh>;
-	    close($fh);
-	    my($status) = $statline =~ /(\d+)/;
-	    $status //= 1;
-	    return $status;
-	}
+    my $app_status_dir = dirname($self->impl->{status_file});
+    my $app_status_file = "$app_status_dir/$app_id.status";
+    if (open(my $fh, $app_status_file))
+    {
+        my $statline = <$fh>;
+        close($fh);
+        my($status) = $statline =~ /(\d+)/;
+        $status //= 1;
+        return $status;
+    }
     }
 
     return $stat;
@@ -289,21 +289,21 @@ sub get_task_exitcode
     my $tdir = $self->impl->{task_status_dir};
     if (open(my $fh, "<", "$tdir/$id/exitcode"))
     {
-	my $l = <$fh>;
-	close($fh);
-	if ($l =~ /(\d+)/)
-	{
-	    return $1;
-	}
-	else
-	{
-	    warn "Invalid exitcode file $tdir/$id/exitcode\n";
-	    return undef;
-	}
+    my $l = <$fh>;
+    close($fh);
+    if ($l =~ /(\d+)/)
+    {
+        return $1;
     }
     else
     {
-	return undef;
+        warn "Invalid exitcode file $tdir/$id/exitcode\n";
+        return undef;
+    }
+    }
+    else
+    {
+    return undef;
     }
 }
 

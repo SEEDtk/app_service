@@ -19,7 +19,7 @@ GetOptions("h|help"     => \$help,
            "q=f"        => \$min_map_quality,
            "header"     => \$show_header,
            "html"       => \$show_html,
-	  ) or die("Error in command line arguments\n");
+      ) or die("Error in command line arguments\n");
 
 $help and die $usage;
 
@@ -90,14 +90,14 @@ sub vcf_to_snps {
             $alt_frac = sprintf("%.2f", $alt_dp / $info->{DP});
         }
 
-		my @eff = split(/\|/, $info->{EFF});
-		my $ref_nt_change = "";
-		my $ref_aa_change = "";
-		if ($eff[3] =~ /p\.(.+)\/c\.(.+)/) {
-			$ref_aa_change = $1;
-			$ref_nt_change = $2;
-		}
-        
+        my @eff = split(/\|/, $info->{EFF});
+        my $ref_nt_change = "";
+        my $ref_aa_change = "";
+        if ($eff[3] =~ /p\.(.+)\/c\.(.+)/) {
+            $ref_aa_change = $1;
+            $ref_nt_change = $2;
+        }
+
         my $map_qual = $info->{MQ} || $info->{MQM};
 
         # print STDERR join("\t", $ctg, $pos, $alt_dp, $alt_frac, $map_qual) . "\n";
@@ -274,7 +274,6 @@ sub feature_info_for_position {
 
     $left = $features->{$ctg}->[$index] if defined($index) && $index >= 0;
 
-    my @cover;
     for (my $i = $index + 1; $features->{$ctg} && $i < @{$features->{$ctg}}; $i++) {
         my $fea = $features->{$ctg}->[$i];
         my ($lo, $hi) = @{$fea}[3, 4];

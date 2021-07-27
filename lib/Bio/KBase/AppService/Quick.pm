@@ -10,7 +10,7 @@ use Data::Dumper;
 use POSIX;
 use LWP::UserAgent;
 use HTTP::Headers;
-use JSON::XS;
+use JSON::XS qw();
 use MIME::Base64;
 use File::Spec;
 use Bio::KBase::AppService::Awe;
@@ -48,90 +48,90 @@ hook before => sub {
 
     if (!$user)
     {
-	#
-	# Do we have a basic authorization or the normal PATRIC service authentication
-	# header ?
-	#
+    #
+    # Do we have a basic authorization or the normal PATRIC service authentication
+    # header ?
+    #
 
-	my $auth_hdr = request->header("Authorization");
-	if (defined($auth_hdr))
-	{
-	    if ($auth_hdr =~ /^Basic\s+(.*)$/)
-	    {
-		my $d = decode_base64($1);
-		if ($d =~ /^(.*):(.*)$/)
-		{
-		    $user = $1;
-		    $pass = $2;
-		}
-	    }
-	    else
-	    {
-		#
-		# Treat as bearer token with optional OAuth in front.
-		#
+    my $auth_hdr = request->header("Authorization");
+    if (defined($auth_hdr))
+    {
+        if ($auth_hdr =~ /^Basic\s+(.*)$/)
+        {
+        my $d = decode_base64($1);
+        if ($d =~ /^(.*):(.*)$/)
+        {
+            $user = $1;
+            $pass = $2;
+        }
+        }
+        else
+        {
+        #
+        # Treat as bearer token with optional OAuth in front.
+        #
 
-		$token = $auth_hdr;
-		$token =~ s/^OAuth\s+//;
-		my $auth_token = P3AuthToken->new(token => $token, ignore_authrc => 1);
-		my($valid, $validate_err) = $validator->validate($auth_token);
-		if (!$valid)
-		{
-		    warn "Invalid token $token received: $auth_token->{error_message}\n";
-		    return;
-		}
-	    }
-	}
+        $token = $auth_hdr;
+        $token =~ s/^OAuth\s+//;
+        my $auth_token = P3AuthToken->new(token => $token, ignore_authrc => 1);
+        my($valid, $validate_err) = $validator->validate($auth_token);
+        if (!$valid)
+        {
+            warn "Invalid token $token received: $auth_token->{error_message}\n";
+            return;
+        }
+        }
+    }
     }
 
     if ($user && $pass)
     {
-	$token = $token_cache{$user, $pass};
-	
-	if (!$token)
-	{
-	    my $ua = LWP::UserAgent->new;
-	    
-	    if ($user =~ /^([^@]+)\@patricbrc.org$/)
-	    {
-		my $url = "https://user.patricbrc.org/authenticate";
-		my $content = { username => $1, password => $pass };
-		
-		my $res = $ua->post($url,$content);
-		if ($res->is_success)
-		{
-		    $token = $res->content;
-		}
-	    }
-	    else
-	    {
-		my $headers = HTTP::Headers->new;
-		my %headers;
-		$headers->authorization_basic($user, $pass);
-		$headers{Authorization} = $headers->header('Authorization');
-		my $res = $ua->get("http://rast.nmpdr.org/goauth/token?grant_type=client_credentials",
-				   %headers);
-		if ($res->is_success)
-		{
-		    my $token_obj = decode_json($res->content);
-		    $token = $token_obj->{access_token};
-		    $token_cache{$user, $pass} = $token;
-		    
-		}
-		else
-		{
-		    warn "Could not retrieve token for user $user\n";
-		}
-	    }
-	}
+    $token = $token_cache{$user, $pass};
+
+    if (!$token)
+    {
+        my $ua = LWP::UserAgent->new;
+
+        if ($user =~ /^([^@]+)\@patricbrc.org$/)
+        {
+        my $url = "https://user.patricbrc.org/authenticate";
+        my $content = { username => $1, password => $pass };
+
+        my $res = $ua->post($url,$content);
+        if ($res->is_success)
+        {
+            $token = $res->content;
+        }
+        }
+        else
+        {
+        my $headers = HTTP::Headers->new;
+        my %headers;
+        $headers->authorization_basic($user, $pass);
+        $headers{Authorization} = $headers->header('Authorization');
+        my $res = $ua->get("http://rast.nmpdr.org/goauth/token?grant_type=client_credentials",
+                   %headers);
+        if ($res->is_success)
+        {
+            my $token_obj = decode_json($res->content);
+            $token = $token_obj->{access_token};
+            $token_cache{$user, $pass} = $token;
+
+        }
+        else
+        {
+            warn "Could not retrieve token for user $user\n";
+        }
+        }
     }
-    
+    }
+
     if ($token)
     {
-	var token => $token;
-	my($user) = $token =~ /\bun=([^|]+)/;
-	var user => $user;
-	$ENV{KB_AUTH_TOKEN} = $token;
+    var token => $token;
+    my($user) = $token =~ /\bun=([^|]+)/;
+    var user => $user;
+    $ENV{KB_AUTH_TOKEN} = $token;
     }
 };
 
@@ -143,32 +143,32 @@ post '/submit/GenomeAnnotation' => sub {
 
     if (!$token)
     {
-	send_error("Authentication required", 403);
+    send_error("Authentication required", 403);
     }
 
     #
-    # The quick interface defaults to inputs in a folder "QuickData" 
+    # The quick interface defaults to inputs in a folder "QuickData"
     #
 
     my $base = strftime("base-%Y-%m-%d-%H-%M-%S", localtime time);
-    
+
     my $path = params->{path};
     if (!$path)
     {
-	$path = "/" . vars->{user} . "/home/QuickData/$base";
+    $path = "/" . vars->{user} . "/home/QuickData/$base";
     }
 
     my $ws = Bio::P3::Workspace::WorkspaceClientExt->new();
     # print Dumper($ws);
 
     eval {
-	my $res = $ws->get({ objects => [$path], metadata_only => 1 });
-	# Dumper("exists ", $res);
+    my $res = $ws->get({ objects => [$path], metadata_only => 1 });
+    # Dumper("exists ", $res);
     };
     if ($@)
     {
-	my $res = $ws->create({ objects => [ [$path, 'folder' ] ] });
-	# print Dumper($res);
+    my $res = $ws->create({ objects => [ [$path, 'folder' ] ] });
+    # print Dumper($res);
     }
 
     my $cpath = "$path/contigs";
@@ -180,14 +180,14 @@ post '/submit/GenomeAnnotation' => sub {
     my $code = params->{genetic_code} || 11;
     my $domain = params->{domain} || 'B';
     my $params = {
-	contigs => $cpath,
-	scientific_name => $name,
-	taxonomy_id => $tax,
-	code => $code,
-	domain => $domain,
-	output_path => $path,
-	output_file => "genome",
-	skip_indexing => (params->{skip_indexing} ? 1 : 0),
+    contigs => $cpath,
+    scientific_name => $name,
+    taxonomy_id => $tax,
+    code => $code,
+    domain => $domain,
+    output_path => $path,
+    output_file => "genome",
+    skip_indexing => (params->{skip_indexing} ? 1 : 0),
     };
     my $appserv = Bio::KBase::AppService::Client->new();
     my $res = $appserv->start_app('GenomeAnnotation', $params, $path);
@@ -201,7 +201,7 @@ get '/:id/status' => sub {
     my $token = vars->{token};
     if (!$token)
     {
-	send_error("Authentication required", 403);
+    send_error("Authentication required", 403);
     }
 
     my $id = params->{id};
@@ -211,7 +211,7 @@ get '/:id/status' => sub {
 
     if (!($details && exists($details->{$id})))
     {
-	send_error("ID not found", 404);
+    send_error("ID not found", 404);
     }
     $details = $details->{$id};
 
@@ -226,7 +226,7 @@ get '/:id/retrieve' => sub {
     my $token = vars->{token};
     if (!$token)
     {
-	send_error("Authentication required", 403);
+    send_error("Authentication required", 403);
     }
 
     my $id = params->{id};
@@ -236,7 +236,7 @@ get '/:id/retrieve' => sub {
 
     if (!($details && exists($details->{$id})))
     {
-	send_error("ID not found", 404);
+    send_error("ID not found", 404);
     }
     $details = $details->{$id};
 
@@ -244,7 +244,7 @@ get '/:id/retrieve' => sub {
 
     if ($status ne 'completed')
     {
-	send_error("results not ready", 404);
+    send_error("results not ready", 404);
     }
 
     my $params = $details->{parameters};
@@ -253,35 +253,35 @@ get '/:id/retrieve' => sub {
 
     my $out;
     eval {
-	my $res = $ws->get( { objects => [$path] });
-	my $ent = $res->[0];
-	my($meta, $data) = @$ent;
-	bless $meta, 'Bio::P3::Workspace::ObjectMeta';
+    my $res = $ws->get( { objects => [$path] });
+    my $ent = $res->[0];
+    my($meta, $data) = @$ent;
+    bless $meta, 'Bio::P3::Workspace::ObjectMeta';
 
-	if ($meta->shock_url)
-	{
-	    # print "GET " . $meta->shock_url . "\n";
-	    my $ua = LWP::UserAgent->new;
-	    my $wres = $ua->get($meta->shock_url . "?download",
-				Authorization => "OAuth " . $token);
-	    $out = $wres->content;
-	}
-	else
-	{
-	    $out = $data;
-	}
+    if ($meta->shock_url)
+    {
+        # print "GET " . $meta->shock_url . "\n";
+        my $ua = LWP::UserAgent->new;
+        my $wres = $ua->get($meta->shock_url . "?download",
+                Authorization => "OAuth " . $token);
+        $out = $wres->content;
+    }
+    else
+    {
+        $out = $data;
+    }
     };
 
     if ($@)
     {
-	send_error("error retrieving results from $path", 500);
+    send_error("error retrieving results from $path", 500);
     }
     else
     {
-	return $out;
+    return $out;
     }
 };
 
 
 1;
-    
+

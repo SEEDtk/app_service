@@ -65,41 +65,41 @@ sub process
     my $dbh = DBI->connect($dsn, db_user, db_pass, { RaiseError => 1, AutoCommit => 0 });
 
     my $ginfo = $dbh->selectall_arrayref(qq(SELECT parent_job
-					 FROM GenomeAnnotation_JobDetails
-					 WHERE job_id = ?),
-				      undef, $task);
+                     FROM GenomeAnnotation_JobDetails
+                     WHERE job_id = ?),
+                      undef, $task);
     if (!@$ginfo)
     {
-	die "Could not find parent job for task='$task'\n";
+    die "Could not find parent job for task='$task'\n";
     }
     my $parent = $ginfo->[0]->[0];
     print "Parent task=$parent\n";
-    
+
     my $genome_list = $dbh->selectall_arrayref(qq(SELECT job_id, genome_id, genome_name, gto_path
-						  FROM GenomeAnnotation_JobDetails
-						  WHERE parent_job = ?),
-					       undef, $parent);
+                          FROM GenomeAnnotation_JobDetails
+                          WHERE parent_job = ?),
+                           undef, $parent);
     my @genomes;
     my @gtos;
     my %report_url_map;
     for my $ent (@$genome_list)
     {
-	my($job, $genome_id, $genome_name, $gto_path) = @$ent;
-	my $gto = $app->workspace->download_json($gto_path, $app->token());
-	print "$job $genome_id: $gto->{scientific_name}\n";
-	delete {$_}->{dna} foreach @{$gto->{contigs}};
-	push(@genomes, $genome_id);
-	push(@gtos, $gto);
+    my($job, $genome_id, $genome_name, $gto_path) = @$ent;
+    my $gto = $app->workspace->download_json($gto_path, $app->token());
+    print "$job $genome_id: $gto->{scientific_name}\n";
+    delete {$_}->{dna} foreach @{$gto->{contigs}};
+    push(@genomes, $genome_id);
+    push(@gtos, $gto);
 
-	#
-	# We assume the report URL is available in the same workspace
-	# directory as the genome.
-	#
-	my $report_path = dirname($gto_path) . "/GenomeReport.html";
-	my $report_url = "https://www.patricbrc.org/workspace$report_path";
-	$report_url_map{$genome_id} = $report_url;
+    #
+    # We assume the report URL is available in the same workspace
+    # directory as the genome.
+    #
+    my $report_path = dirname($gto_path) . "/GenomeReport.html";
+    my $report_url = "https://www.patricbrc.org/workspace$report_path";
+    $report_url_map{$genome_id} = $report_url;
     }
-    
+
 
     # since we are an epilog we don't create output folder which means
     # that value not currently set. Change that.
@@ -117,31 +117,31 @@ sub process
     my $group_path;
     if (my $group = $params->{genome_group})
     {
-	my $home;
-	if ($app->token->token =~ /(^|\|)un=([^|]+)/)
-	{
-	    my $un = $2;
-	    $home = "/$un/home";
-	}
+    my $home;
+    if ($app->token->token =~ /(^|\|)un=([^|]+)/)
+    {
+        my $un = $2;
+        $home = "/$un/home";
+    }
 
-	if ($home)
-	{
-	    $group_path = "$home/Genome Groups/$group";
-	    
-	    my $group_data = { id_list => { genome_id => \@genomes } };
-	    my $group_txt = encode_json($group_data);
-	    
-	    my $res = $app->workspace->create({
-		objects => [[$group_path, "genome_group", {}, $group_txt]],
-		permission => "w",
-		overwrite => 1,
-	    });
-	    print Dumper(group_create => $res);
-	}
-	else
-	{
-	    warn "Cannot find home path '$home'\n";
-	}
+    if ($home)
+    {
+        $group_path = "$home/Genome Groups/$group";
+
+        my $group_data = { id_list => { genome_id => \@genomes } };
+        my $group_txt = encode_json($group_data);
+
+        my $res = $app->workspace->create({
+        objects => [[$group_path, "genome_group", {}, $group_txt]],
+        permission => "w",
+        overwrite => 1,
+        });
+        print Dumper(group_create => $res);
+    }
+    else
+    {
+        warn "Cannot find home path '$home'\n";
+    }
     }
     #
     # Generate the binning report. We need to load the various reports into memory to do this.
@@ -151,48 +151,48 @@ sub process
     # Load bins report from original binning run.
     #
     eval {
-	my($params_txt) = $dbh->selectrow_array(qq(SELECT app_params
-						   FROM JobGroup
-						   WHERE parent_job = ?), undef, $parent);
-	my $parent_params = decode_json($params_txt);
+    my($params_txt) = $dbh->selectrow_array(qq(SELECT app_params
+                           FROM JobGroup
+                           WHERE parent_job = ?), undef, $parent);
+    my $parent_params = decode_json($params_txt);
 
-	my $parent_path = $parent_params->{output_path} . "/." . $parent_params->{output_file};
-	my $bins_report = load_workspace_json($app->workspace, "$parent_path/bins.json");
+    my $parent_path = $parent_params->{output_path} . "/." . $parent_params->{output_file};
+    my $bins_report = load_workspace_json($app->workspace, "$parent_path/bins.json");
 
-	#
-	# Find template.
-	#
-	
-	my $mpath = Module::Metadata->find_module_by_name("BinningReports");
-	$mpath =~ s/\.pm$//;
-	
-	my $summary_tt = "$mpath/summary.tt";
-	-f $summary_tt or die "Summary not found at $summary_tt\n";
+    #
+    # Find template.
+    #
 
-	#
-	# Read SEEDtk role map.
-	#
-	my %role_map;
-	if (open(R, "<", seedtk . "/data/roles.in.subsystems"))
-	{
-	    while (<R>)
-	    {
-		chomp;
-		my($abbr, $hash, $role) = split(/\t/);
-		$role_map{$abbr} = $role;
-	    }
-	    close(R);
-	}
+    my $mpath = Module::Metadata->find_module_by_name("BinningReports");
+    $mpath =~ s/\.pm$//;
 
-	my $html = BinningReports::Summary($parent, $parent_params, $bins_report, $summary_tt,
-					   $group_path, \@gtos, \%report_url_map);
+    my $summary_tt = "$mpath/summary.tt";
+    -f $summary_tt or die "Summary not found at $summary_tt\n";
 
-	$app->workspace->save_data_to_file($html, {},
-					   "$parent_path/BinningReport.html", 'html', 1, 0, $app->token);
+    #
+    # Read SEEDtk role map.
+    #
+    my %role_map;
+    if (open(R, "<", seedtk . "/data/roles.in.subsystems"))
+    {
+        while (<R>)
+        {
+        chomp;
+        my($abbr, $hash, $role) = split(/\t/);
+        $role_map{$abbr} = $role;
+        }
+        close(R);
+    }
+
+    my $html = BinningReports::Summary($parent, $parent_params, $bins_report, $summary_tt,
+                       $group_path, \@gtos, \%report_url_map);
+
+    $app->workspace->save_data_to_file($html, {},
+                       "$parent_path/BinningReport.html", 'html', 1, 0, $app->token);
     };
     if ($@)
     {
-	warn "Error creating final report: $@";
+    warn "Error creating final report: $@";
     }
 
 }
@@ -213,13 +213,13 @@ sub load_workspace_json
     open(my $fh, ">", \$str) or die "Cannot open string reference filehandle: $!";
 
     eval {
-	$ws->copy_files_to_handles(1, $ws->{token}, [[$path, $fh]]);
+    $ws->copy_files_to_handles(1, $ws->{token}, [[$path, $fh]]);
     };
     if ($@)
     {
-	my($err) = $@ =~ /_ERROR_(.*)_ERROR_/;
-	$err //= $@;
-	die "load_workspace_json: failed to load $path: $err\n";
+    my($err) = $@ =~ /_ERROR_(.*)_ERROR_/;
+    $err //= $@;
+    die "load_workspace_json: failed to load $path: $err\n";
     }
     close($fh);
 
@@ -227,7 +227,7 @@ sub load_workspace_json
 
     if ($@)
     {
-	die "Error parsing json: $@";
+    die "Error parsing json: $@";
     }
     return $doc;
 }

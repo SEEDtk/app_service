@@ -8,55 +8,55 @@ Submit a genome to the PATRIC genome annotation service.
 
     p3-submit-genome-annotation [-h] output-path output-name
 
-	Submit an annotation job with output written to output-path and named
-	output-name.    
+    Submit an annotation job with output written to output-path and named
+    output-name.
 
-    	The following options describe the inputs to the annotation:
+        The following options describe the inputs to the annotation:
 
            --workspace-path-prefix STR   Prefix for workspace pathnames as given
-    	   			   	 to input parameters.
+                               to input parameters.
            --workspace-upload-path STR	 If local pathnames are given as library or
-	   			   	 reference assembly parameters, upload the
-    					 files to this directory in the workspace.
-    					 Defaults to the output path.
+                           reference assembly parameters, upload the
+                         files to this directory in the workspace.
+                         Defaults to the output path.
            --overwrite			 If a file to be uploaded already exists in
-    	   				 the workspace, overwrite it on upload. Otherwise
-    					 we will not continue the service submission.
-    	   --genbank-file FILE		 A genbank file to be annotated.
-	   --contigs FILE		 A file of DNA contigs to be annotated.
+                            the workspace, overwrite it on upload. Otherwise
+                         we will not continue the service submission.
+           --genbank-file FILE		 A genbank file to be annotated.
+       --contigs FILE		 A file of DNA contigs to be annotated.
            --phage			 Set annotation defaults for phage annotation.
            --recipe NAME		 Use the given annotation recipe for this genome.
            --reference-genome GID	 The PATRIC identifier of a reference genome
-	   		      		 whose annotations will be propagated as
-					 part of this annotation.
-    
-    	The following options describe the genome to be annotated. In each case
-	where the value for the specified option may be drawn from a submitted
-	genbank file it is optional to supply the value. If a value is supplied,
-	it will override the value in the genbank file.
+                              whose annotations will be propagated as
+                     part of this annotation.
+
+        The following options describe the genome to be annotated. In each case
+    where the value for the specified option may be drawn from a submitted
+    genbank file it is optional to supply the value. If a value is supplied,
+    it will override the value in the genbank file.
 
            --scientific-name "Genus species strain"
-	   		      	         Scientific name for this genome. 
-	   --taxonomy-id NUM		 Numeric NCBI taxonomy ID for this genome.
-	   		 		 If not specified an estimate will be
-					 computed, and if that is not possible the 
-					 catchall taxonomy ID 6666666 will be used.
-	   --genetic-code NUM		 Genetic code for this genome; either 11 or 4.
-	   		  		 If not specified defaults to 11 unless it 
-					 can be determined from the declared or computed
-					 taxonomy ID.
-	   --domain STR			 Domain for this genome (Bacteria or Archaea)
-	   
+                                  Scientific name for this genome.
+       --taxonomy-id NUM		 Numeric NCBI taxonomy ID for this genome.
+                         If not specified an estimate will be
+                     computed, and if that is not possible the
+                     catchall taxonomy ID 6666666 will be used.
+       --genetic-code NUM		 Genetic code for this genome; either 11 or 4.
+                          If not specified defaults to 11 unless it
+                     can be determined from the declared or computed
+                     taxonomy ID.
+       --domain STR			 Domain for this genome (Bacteria or Archaea)
 
-	Advanced options:
 
-	   --workflow-file STR		 Use the given workflow document to process 
-	   		   		 annotate this genome.
-	   --index-nowait		 Do not wait for indexing to complete before
-					 the job is marked as complete.
-	   --no-index			 Do not index this genome. If this option
-	   				 is selected the genome will not be visible
-					 on the PATRIC website.
+    Advanced options:
+
+       --workflow-file STR		 Use the given workflow document to process
+                           annotate this genome.
+       --index-nowait		 Do not wait for indexing to complete before
+                     the job is marked as complete.
+       --no-index			 Do not index this genome. If this option
+                        is selected the genome will not be visible
+                     on the PATRIC website.
 
 =cut
 
@@ -70,6 +70,7 @@ use Try::Tiny;
 use IO::Handle;
 use Data::Dumper;
 $Data::Dumper::Sortkeys = 1;
+no warnings 'shadow';
 
 use File::Basename;
 use JSON::XS;
@@ -86,42 +87,42 @@ my $app_service = Bio::KBase::AppService::Client->new();
 
 my($opt, $usage) =
     describe_options("%c %o output-path output-name",
-		     ["Submit an annotation job with output written to output-path and named output-name."],
-		     ["The output-path parameter is a PATRIC workspace path."],
-		     ["The output-name parameter is a name that will describe this annotation in the workspace."],
-		     ["It may not contain slash (/) characters."],
-		     [],
-		     ["The following options describe the inputs to the annotation."],
-		     [],
-		     ["workspace-path-prefix|p=s", "Prefix for workspace pathnames as given to input parameters."],
-		     ["workspace-upload-path|P=s", "If local pathnames are given as genbank or contigs file parameters, upload the files to this directory in the workspace. Defaults to the output path."],
-		     ["overwrite|f", "If a file to be uploaded already exists in the workspace, overwrite it on upload. Otherwise we will not continue the service submission."],
-		     ["genbank-file=s", "A genbank file to be annotated."],
-		     ["contigs-file=s", "A file of DNA contigs to be annotated."],
-		     ["phage", "Set defaults for phage annotation."],
-		     ["recipe=s", "Use the given non-default recipe for this annotation"],
-		     ["reference-genome=s", "The PATRIC identifier of a reference genome whose annotations will be propagated as part of this annotation."],
-		     [],
-		     ["The following options describe the genome to be annotated."],
-		     ["In each case where the value for the specified option may be drawn"],
-		     ["from a submitted genbank file it is optional to supply the value."],
-		     ["If a value is supplied, it will override the value in the genbank file."],
-		     [],
-		     ["scientific-name|n=s", "Scientific name for this genome."],
-		     ["taxonomy-id|t=i", "Numeric NCBI taxonomy ID for this genome. If not specified an estimate will be computed, and if that is not possible the catchall taxonomy ID 6666666 will be used."],
-		     ["genetic-code|g=i", "Genetic code for this genome; either 11 or 4. If not specified defaults to 11 unless it can be determined from the declared or computed taxonomy ID."],
-		     ["domain|d=s", "Domain for this genome (Bacteria or Archaea)"],
-		     [],
-		     ["Advanced options:"],
-		     [],
-		     ["workflow-file=s", "Use the given workflow document to process annotate this genome."],
-		     ["import-only", "Import this genome as is - do not reannotate gene calls or gene function. Only valid for genbank file input."],
-		     ["index-nowait", "Do not wait for indexing to complete before the job is marked as complete."],
-		     ["no-index", "Do not index this genome. If this option is selected the genome will not be visible on the PATRIC website."],
-		     ["dry-run", "Dry run. Upload files and validate input but do not submit annotation"],
-		     [],
-		     ["help|h", "Show this help message"],
-		    );
+             ["Submit an annotation job with output written to output-path and named output-name."],
+             ["The output-path parameter is a PATRIC workspace path."],
+             ["The output-name parameter is a name that will describe this annotation in the workspace."],
+             ["It may not contain slash (/) characters."],
+             [],
+             ["The following options describe the inputs to the annotation."],
+             [],
+             ["workspace-path-prefix|p=s", "Prefix for workspace pathnames as given to input parameters."],
+             ["workspace-upload-path|P=s", "If local pathnames are given as genbank or contigs file parameters, upload the files to this directory in the workspace. Defaults to the output path."],
+             ["overwrite|f", "If a file to be uploaded already exists in the workspace, overwrite it on upload. Otherwise we will not continue the service submission."],
+             ["genbank-file=s", "A genbank file to be annotated."],
+             ["contigs-file=s", "A file of DNA contigs to be annotated."],
+             ["phage", "Set defaults for phage annotation."],
+             ["recipe=s", "Use the given non-default recipe for this annotation"],
+             ["reference-genome=s", "The PATRIC identifier of a reference genome whose annotations will be propagated as part of this annotation."],
+             [],
+             ["The following options describe the genome to be annotated."],
+             ["In each case where the value for the specified option may be drawn"],
+             ["from a submitted genbank file it is optional to supply the value."],
+             ["If a value is supplied, it will override the value in the genbank file."],
+             [],
+             ["scientific-name|n=s", "Scientific name for this genome."],
+             ["taxonomy-id|t=i", "Numeric NCBI taxonomy ID for this genome. If not specified an estimate will be computed, and if that is not possible the catchall taxonomy ID 6666666 will be used."],
+             ["genetic-code|g=i", "Genetic code for this genome; either 11 or 4. If not specified defaults to 11 unless it can be determined from the declared or computed taxonomy ID."],
+             ["domain|d=s", "Domain for this genome (Bacteria or Archaea)"],
+             [],
+             ["Advanced options:"],
+             [],
+             ["workflow-file=s", "Use the given workflow document to process annotate this genome."],
+             ["import-only", "Import this genome as is - do not reannotate gene calls or gene function. Only valid for genbank file input."],
+             ["index-nowait", "Do not wait for indexing to complete before the job is marked as complete."],
+             ["no-index", "Do not index this genome. If this option is selected the genome will not be visible on the PATRIC website."],
+             ["dry-run", "Dry run. Upload files and validate input but do not submit annotation"],
+             [],
+             ["help|h", "Show this help message"],
+            );
 print($usage->text), exit 0 if $opt->help;
 die($usage->text) if @ARGV != 2;
 
@@ -231,31 +232,31 @@ if ($opt->workflow_file)
 
     if ($wf_ws)
     {
-	$wf_ws = expand_workspace_path($wf_ws);
-	$workflow_txt = $ws->download_file_to_string($wf_ws, $token);
+    $wf_ws = expand_workspace_path($wf_ws);
+    $workflow_txt = $ws->download_file_to_string($wf_ws, $token);
     }
     else
     {
-	open(F, "<", $opt->workflow_file) or die "Cannot open workflow file " . $opt->workflow_file . ": $!\n";
-	local $/;
-	undef $/;
-	$workflow_txt = <F>;
-	close(F);
+    open(F, "<", $opt->workflow_file) or die "Cannot open workflow file " . $opt->workflow_file . ": $!\n";
+    local $/;
+    undef $/;
+    $workflow_txt = <F>;
+    close(F);
     }
-    
+
     eval {
-	$workflow = decode_json($workflow_txt);
+    $workflow = decode_json($workflow_txt);
     };
     if (!$workflow)
     {
-	die "Error parsing workflow file " . $opt->workflow_file . "\n";
+    die "Error parsing workflow file " . $opt->workflow_file . "\n";
     }
 
     if (ref($workflow) ne 'HASH' ||
-	!exists($workflow->{stages}) ||
-	ref($workflow->{stages}) ne 'ARRAY')
+    !exists($workflow->{stages}) ||
+    ref($workflow->{stages}) ne 'ARRAY')
     {
-	die "Invalid workflow document (must be a object containing a list of stage definitions)\n";
+    die "Invalid workflow document (must be a object containing a list of stage definitions)\n";
     }
 }
 
@@ -298,49 +299,49 @@ else
 
     if ($taxon_id)
     {
-	#
-	# If something has been omitted, attempt to look it up via the taxonomy
-	# identifier.
-	#
-	
-	if (!($opt->domain && $opt->scientific_name && $opt->genetic_code))
-	{
-	    my($db_domain, $db_name, $db_genetic_code);
-	    
-	    my @res = $api->query("taxonomy",
-				  ["select", "lineage_names,genetic_code,taxon_name"],
-				  ["eq", "taxon_id", $taxon_id]);
-	    if (@res)
-	    {
-		my $t = $res[0];
-		$db_name = $t->{taxon_name};
-		$db_genetic_code = $t->{genetic_code};
-		my $lin = $t->{lineage_names};
-		shift @$lin if $lin->[0] =~ /^cellular/;
-		$db_domain = $lin->[0];
-	    }
+    #
+    # If something has been omitted, attempt to look it up via the taxonomy
+    # identifier.
+    #
 
-	    $params->{domain} = $opt->domain // $db_domain;
-	    $params->{code} = $opt->genetic_code // $db_genetic_code;
-	    $params->{scientific_name} = $opt->scientific_name // $db_name;
-	}
-	else
-	{
-	    $params->{domain} = $opt->domain;
-	    $params->{code} = $opt->genetic_code;
-	    $params->{scientific_name} = $opt->scientific_name;
-	}
-	$params->{taxonomy_id} = $taxon_id;
+    if (!($opt->domain && $opt->scientific_name && $opt->genetic_code))
+    {
+        my($db_domain, $db_name, $db_genetic_code);
+
+        my @res = $api->query("taxonomy",
+                  ["select", "lineage_names,genetic_code,taxon_name"],
+                  ["eq", "taxon_id", $taxon_id]);
+        if (@res)
+        {
+        my $t = $res[0];
+        $db_name = $t->{taxon_name};
+        $db_genetic_code = $t->{genetic_code};
+        my $lin = $t->{lineage_names};
+        shift @$lin if $lin->[0] =~ /^cellular/;
+        $db_domain = $lin->[0];
+        }
+
+        $params->{domain} = $opt->domain // $db_domain;
+        $params->{code} = $opt->genetic_code // $db_genetic_code;
+        $params->{scientific_name} = $opt->scientific_name // $db_name;
     }
     else
     {
-	$params->{taxonomy_id} = $default_taxon_id;
-	$params->{domain} //= $default_domain;
-	$params->{code} //= $default_genetic_code;
-	$params->{scientific_name} //= $default_scientific_name;
+        $params->{domain} = $opt->domain;
+        $params->{code} = $opt->genetic_code;
+        $params->{scientific_name} = $opt->scientific_name;
+    }
+    $params->{taxonomy_id} = $taxon_id;
+    }
+    else
+    {
+    $params->{taxonomy_id} = $default_taxon_id;
+    $params->{domain} //= $default_domain;
+    $params->{code} //= $default_genetic_code;
+    $params->{scientific_name} //= $default_scientific_name;
     }
 }
-   
+
 if ($opt->dry_run)
 {
     print "Would submit with data:\n";
@@ -351,11 +352,11 @@ else
     my $task = eval { $app_service->start_app($app_name, $params, '') };
     if ($@)
     {
-	die "Error submitting annotation to service:\n$@\n";
+    die "Error submitting annotation to service:\n$@\n";
     }
     elsif (!$task)
     {
-	die "Error submitting annotation to service (unknown error)\n";
+    die "Error submitting annotation to service (unknown error)\n";
     }
     print "Submitted annotation with id $task->{id}\n";
 }
@@ -366,33 +367,33 @@ sub process_upload_queue
     my $errors;
     for my $ent (@$upload_queue)
     {
-	my($path, $wspath) = @$ent;
-	my $size = -s $path;
-	printf "Uploading $path to $wspath (%s)...\n", format_size($size);
-	my $res;
-	eval {
-	    $res = $ws->save_file_to_file($path, {}, $wspath, 'reads', $opt->overwrite, 1, $token->token());
-	};
-	if ($@)
-	{
-	    die "Failure uploading $path to $wspath\n";
-	}
-	my $stat = $ws->stat($wspath);
-	if (!$stat)
-	{
-	    print "Error uploading (file was not present after upload)\n";
-	    $errors++;
-	}
-	elsif ($stat->size != $size)
-	{
-	    printf "Error uploading (filesize at workspace (%s) did not match original size $size)\n",
-	    $stat->size;
-	    $errors++;
-	}
-	else
-	{
-	    print "done\n";
-	}
+    my($path, $wspath) = @$ent;
+    my $size = -s $path;
+    printf "Uploading $path to $wspath (%s)...\n", format_size($size);
+    my $res;
+    eval {
+        $res = $ws->save_file_to_file($path, {}, $wspath, 'reads', $opt->overwrite, 1, $token->token());
+    };
+    if ($@)
+    {
+        die "Failure uploading $path to $wspath\n";
+    }
+    my $stat = $ws->stat($wspath);
+    if (!$stat)
+    {
+        print "Error uploading (file was not present after upload)\n";
+        $errors++;
+    }
+    elsif ($stat->size != $size)
+    {
+        printf "Error uploading (filesize at workspace (%s) did not match original size $size)\n",
+        $stat->size;
+        $errors++;
+    }
+    else
+    {
+        print "done\n";
+    }
     }
     return $errors;
 }
@@ -420,32 +421,32 @@ sub process_filename
     my $wspath;
     if ($path =~ /^ws:(.*)/)
     {
-	$wspath = expand_workspace_path($1);
-	my $stat = $ws->stat($wspath);
-	if (!$stat || !S_ISREG($stat->mode))
-	{
-	    die "Workspace path $wspath not found for file $path\n";
-	}
+    $wspath = expand_workspace_path($1);
+    my $stat = $ws->stat($wspath);
+    if (!$stat || !S_ISREG($stat->mode))
+    {
+        die "Workspace path $wspath not found for file $path\n";
+    }
     }
     else
     {
-	if (!-f $path)
-	{
-	    die "Local file $path does not exist\n";
-	}
-	if (!$opt->workspace_upload_path)
-	{
-	    die "Upload was requested for $path but an upload path was not specified via --workspace-upload-path\n";
-	}
-	my $file = basename($path);
-	$wspath = $opt->workspace_upload_path . "/" . $file;
+    if (!-f $path)
+    {
+        die "Local file $path does not exist\n";
+    }
+    if (!$opt->workspace_upload_path)
+    {
+        die "Upload was requested for $path but an upload path was not specified via --workspace-upload-path\n";
+    }
+    my $file = basename($path);
+    $wspath = $opt->workspace_upload_path . "/" . $file;
 
-	if (!$opt->overwrite && $ws->stat($wspath))
-	{
-	    die "Target path $wspath already exists and --overwrite not specified\n";
-	}
+    if (!$opt->overwrite && $ws->stat($wspath))
+    {
+        die "Target path $wspath already exists and --overwrite not specified\n";
+    }
 
-	push(@upload_queue, [$path, $wspath]);
+    push(@upload_queue, [$path, $wspath]);
     }
     return $wspath;
 }
@@ -456,13 +457,13 @@ sub expand_workspace_path
     my $wspath = $wspath_in;
     if ($wspath_in !~ m,^/,)
     {
-	if (!$opt->workspace_path_prefix)
-	{
-	    die "Cannot process $wspath: no workspace path prefix set (--workspace-path-prefix parameter)\n";
-	}
-	$wspath = $opt->workspace_path_prefix ;
-	$wspath =~ s,/+$,,;
-	$wspath .= "/" . $wspath_in;
+    if (!$opt->workspace_path_prefix)
+    {
+        die "Cannot process $wspath: no workspace path prefix set (--workspace-path-prefix parameter)\n";
+    }
+    $wspath = $opt->workspace_path_prefix ;
+    $wspath =~ s,/+$,,;
+    $wspath .= "/" . $wspath_in;
     }
     return $wspath;
 }

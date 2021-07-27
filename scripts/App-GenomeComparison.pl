@@ -67,19 +67,19 @@ sub process_proteomes {
     my @outputs = run_find_bdbh($tmpdir, $genomes, $tracks, $ref_type, $ref_name, $params);
 
     for (@outputs) {
-	my ($ofile, $type) = @$_;
-	if (-f "$ofile") {
+    my ($ofile, $type) = @$_;
+    if (-f "$ofile") {
             my $filename = basename($ofile);
             print STDERR "Output folder = $output_folder\n";
             print STDERR "Saving $ofile => $output_folder/$filename ...\n";
-	    $app->workspace->save_file_to_file("$ofile", {}, "$output_folder/$filename", $type, 1,
-					       # (-s "$ofile" > 10_000 ? 1 : 0), # use shock for larger files
-					       # (-s "$ofile" > 20_000_000 ? 1 : 0), # use shock for larger files
-					       0, # do not use shock as it breaks the front end
-					       $global_token);
-	} else {
-	    warn "Missing desired output file $ofile\n";
-	}
+        $app->workspace->save_file_to_file("$ofile", {}, "$output_folder/$filename", $type, 1,
+                           # (-s "$ofile" > 10_000 ? 1 : 0), # use shock for larger files
+                           # (-s "$ofile" > 20_000_000 ? 1 : 0), # use shock for larger files
+                           0, # do not use shock as it breaks the front end
+                           $global_token);
+    } else {
+        warn "Missing desired output file $ofile\n";
+    }
     }
 }
 
@@ -382,9 +382,9 @@ sub get_genome_faa {
         push @tracks, "$basename (user fasta)";
         #check the user fasta type by evaluating the sampled sequences
         my $seq_type = get_sample_seq_type($fname);
-		if ($seq_type !~ /^prot/) {
-			die "The user fasta appears to be of type $seq_type. It must be a file of protein sequences.\n";
-		}
+        if ($seq_type !~ /^prot/) {
+            die "The user fasta appears to be of type $seq_type. It must be a file of protein sequences.\n";
+        }
     }
     for (@{$params->{user_feature_groups}}) {
         push @genomes, get_feature_group_faa($tmpdir, $_);
@@ -394,7 +394,7 @@ sub get_genome_faa {
     my $ref_i = $params->{reference_genome_index} - 1;
     if ($ref_i) {
         my $tmp = $genomes[0]; $genomes[0] = $genomes[$ref_i]; $genomes[$ref_i] = $tmp;
-        my $tmp = $tracks[0]; $tracks[0] = $tracks[$ref_i]; $tracks[$ref_i] = $tmp;
+        $tmp = $tracks[0]; $tracks[0] = $tracks[$ref_i]; $tracks[$ref_i] = $tmp;
     }
     # print STDERR '\@genomes = '. Dumper(\@genomes);
     # print STDERR '\@tracks = '. Dumper(\@tracks);
@@ -404,14 +404,14 @@ sub get_genome_faa {
 
 sub get_sample_seq_type {
     my ($fname) = @_;
-	my $seq_type = 'undefined';
-	my $num_chars = 5000;
-	my $sample_seq = '';
+    my $seq_type = 'undefined';
+    my $num_chars = 5000;
+    my $sample_seq = '';
     open(SF, "<", $fname) or die "Cannot open $fname for reading: $!";
     while (my($id, $def, $seq) = read_next_fasta(\*SF)) {
-		next if $seq eq '';
-		$sample_seq = $sample_seq . $seq;
-		if (length($sample_seq) >= $num_chars) {
+        next if $seq eq '';
+        $sample_seq = $sample_seq . $seq;
+        if (length($sample_seq) >= $num_chars) {
             last;
         }
     }
@@ -452,7 +452,7 @@ sub get_feature_group_faa {
     #print STDERR "feature_group info: ", Dumper($json);
     for my $fea (@$json) {
         my $id = $fea->{patric_id};
-		# print STDERR "feature patric_id= " . $id . "\n";
+        # print STDERR "feature patric_id= " . $id . "\n";
         my $seq = $data_api_module->retrieve_protein_feature_sequence([$id]);
         $out = $out . ">$id\n" . $seq->{$id} . "\n";
         #print STDERR "feature faa:\n$out\n";
@@ -509,7 +509,7 @@ sub get_feature_group_contigs {
     my ($group) = @_;
     my $escaped = uri_escape($group);
     #my $url = "$data_api/genome_feature/?&sort(+alt_locus_tag)&select(genome_id,accession)&in(feature_id,FeatureGroup($escaped))&http_accept=application/json&limit(25000)";
-	my $url = "$data_api/genome_feature/?&sort(+accession,+start,+end)&select(genome_id,accession)&in(feature_id,FeatureGroup($escaped))&http_accept=application/json&limit(25000)";
+    my $url = "$data_api/genome_feature/?&sort(+accession,+start,+end)&select(genome_id,accession)&in(feature_id,FeatureGroup($escaped))&http_accept=application/json&limit(25000)";
     my $data = curl_json($url);
     my (%gids, %accs);
     for (@$data) {
@@ -600,11 +600,11 @@ sub get_ws_file {
     # system("ls", "-la", $tmpdir);
 
     eval {
-	$ws->copy_files_to_handles(1, $token, [[$id, $fh]]);
+    $ws->copy_files_to_handles(1, $token, [[$id, $fh]]);
     };
     if ($@)
     {
-	die "ERROR getting file $id\n$@\n";
+    die "ERROR getting file $id\n$@\n";
     }
     close($fh);
     print STDERR "$id $file:\n";

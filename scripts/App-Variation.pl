@@ -31,14 +31,14 @@ sub process_variation_data {
     # Redirect tmp to large NFS if more than 4 input files.
     # (HACK)
     #
-    
+
     my $file_count = count_params_files($params);
     print STDERR "File count: $file_count\n";
     my $bigtmp = "/vol/patric3/tmp";
     if ($file_count > 4 && -d $bigtmp)
     {
-	print STDERR "Changing tmp from $ENV{TEMPDIR} to $bigtmp\n";
-	$ENV{TEMPDIR} = $ENV{TMPDIR} = $bigtmp;
+    print STDERR "Changing tmp from $ENV{TEMPDIR} to $bigtmp\n";
+    $ENV{TEMPDIR} = $ENV{TMPDIR} = $bigtmp;
     }
 
     print "Proc variation data ", Dumper($app_def, $raw_params, $params);
@@ -140,18 +140,18 @@ sub process_variation_data {
     # return @outputs;
 
     for (@outputs) {
-	my ($ofile, $type) = @$_;
-	if (-f "$ofile") {
+    my ($ofile, $type) = @$_;
+    if (-f "$ofile") {
             my $filename = basename($ofile);
             print STDERR "Output folder = $output_folder\n";
             print STDERR "Saving $ofile => $output_folder/$filename ...\n";
-	    $app->workspace->save_file_to_file("$ofile", {}, "$output_folder/$filename", $type, 1,
-					       (-s "$ofile" > 10_000 ? 1 : 0), # use shock for larger files
-					       # (-s "$ofile" > 20_000_000 ? 1 : 0), # use shock for larger files
-					       $global_token);
-	} else {
-	    warn "Missing desired output file $ofile\n";
-	}
+        $app->workspace->save_file_to_file("$ofile", {}, "$output_folder/$filename", $type, 1,
+                           (-s "$ofile" > 10_000 ? 1 : 0), # use shock for larger files
+                           # (-s "$ofile" > 20_000_000 ? 1 : 0), # use shock for larger files
+                           $global_token);
+    } else {
+        warn "Missing desired output file $ofile\n";
+    }
     }
 
     my $time2 = `date`;
@@ -338,7 +338,7 @@ sub prepare_ref_data {
 
     $url = $api_url;
     # $url = $ftp_url;
-    my $out = curl_text($url);
+    $out = curl_text($url);
     # $out = break_fasta_lines($out."\n");
     $out =~ s/\n+/\n/g;
     write_output($out, "$dir/$gid.fna");
@@ -346,7 +346,7 @@ sub prepare_ref_data {
     # snpEff data
     # $ftp_url = "ftp://ftp.patricbrc.org/genomes/$gid/$gid.PATRIC.gbf";
     # $url = $ftp_url;
-    # my $out = curl_text($url);     
+    # my $out = curl_text($url);
     # my $out = `curl $url`;
     # write_output($out, "$dir/genes.gbk") if $out;
     # my $has_gbk = $out ? 1 : 0;
@@ -355,7 +355,7 @@ sub prepare_ref_data {
     sysrun("p3-extract-gto", "$gid", "-o", "$dir/$gid.gto");
     sysrun("rast_export_genome", "-i", "$dir/$gid.gto", "-o", "$dir/genes.gbk", "genbank");
 
-    my $has_gbk = 0;    
+    my $has_gbk = 0;
     $has_gbk = 1 if -s "$dir/genes.gbk";
 
     return $has_gbk;
@@ -431,11 +431,11 @@ sub count_params_files {
     my $count = 0;
     if (ref($params->{paired_end_libs}))
     {
-	$count += 2 * @{$params->{paired_end_libs}};
+    $count += 2 * @{$params->{paired_end_libs}};
     }
     if (ref($params->{single_end_libs}))
     {
-	$count += @{$params->{single_end_libs}};
+    $count += @{$params->{single_end_libs}};
     }
     return $count;
 }
@@ -465,11 +465,11 @@ sub get_ws_file {
     print STDERR "GET WS => $tmpdir $base $id\n";
 
     eval {
-	$ws->copy_files_to_handles(1, $token, [[$id, $fh]]);
+    $ws->copy_files_to_handles(1, $token, [[$id, $fh]]);
     };
     if ($@)
     {
-	die "ERROR getting file $id\n$@\n";
+    die "ERROR getting file $id\n$@\n";
     }
     close($fh);
 

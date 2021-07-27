@@ -5,15 +5,15 @@ use Data::Dumper;
 
 if (defined $ENV{KB_DEPLOYMENT_CONFIG} && -e $ENV{KB_DEPLOYMENT_CONFIG}) {
     $cfg = new Config::Simple($ENV{KB_DEPLOYMENT_CONFIG}) or
-	die "can not create Config object";
+    die "can not create Config object";
     print "using $ENV{KB_DEPLOYMENT_CONFIG} for configs\n";
 }
 else {
     die "no KB_DEPLOYMENT_CONFIG found";
 }
 
-my $url = "http://" . $cfg->param('app_service.service-host') . 
-	  ":" . $cfg->param('app_service.service-port');
+my $url = "http://" . $cfg->param('app_service.service-host') .
+      ":" . $cfg->param('app_service.service-port');
 
 my $cmd = 'curl -h > /dev/null 2>&1';
 ok(system($cmd) == 0, "curl is installed");
@@ -21,17 +21,17 @@ ok(system($cmd) == 0, "curl is installed");
 $cmd = 'curl ' .  $url . ' > /dev/null 2>&1';
 ok(system($cmd) == 0, "$url is reachable");
 
-my $cmd = "curl " . $cfg->param('app_service.service-url') . '>/dev/null 2>&1';
+$cmd = "curl " . $cfg->param('app_service.service-url') . '>/dev/null 2>&1';
 ok(system($cmd) == 0,
-  $cfg->param('app_service.service-url') . " is reachable"); 
+  $cfg->param('app_service.service-url') . " is reachable");
 
 
-# TODO for a pure client side test, remove AWE, Shock, and AppServiceImpl
+# TASK for a pure client side test, remove AWE, Shock, and AppServiceImpl
 BEGIN {
-	use_ok( Bio::KBase::AppService::Client );
-	use_ok( Bio::KBase::AppService::Awe );
-	use_ok( Bio::KBase::AppService::Shock );
-	use_ok( Bio::KBase::AppService::AppServiceImpl );
+    use_ok( Bio::KBase::AppService::Client );
+    use_ok( Bio::KBase::AppService::Awe );
+    use_ok( Bio::KBase::AppService::Shock );
+    use_ok( Bio::KBase::AppService::AppServiceImpl );
 }
 
 can_ok("Bio::KBase::AppService::Client", qw(
