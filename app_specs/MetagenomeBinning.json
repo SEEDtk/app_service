@@ -43,7 +43,7 @@
 			    "desc": "FASTQ, FASTA or H5 file of reads",
 			    "wstype": "ReadFile",
 			    "type": "wstype"
-			},
+			}
 		    ]
 		},
 		{

@@ -1,7 +1,7 @@
 package Bio::KBase::AppService::Github;
 use Bio::KBase::AppService::AppConfig;
 
-use strict;
+#use strict;
 use LWP::UserAgent;
 use Data::Dumper;
 
@@ -20,7 +20,7 @@ sub submit_github_issue
     {
 	$stdout = $rest->responseContent;
     }
-	
+
     $rest->GET('/stderr');
     if ($rest->responseCode != 200)
     {
@@ -35,7 +35,7 @@ sub submit_github_issue
     my $params_file = $args->[1];
     my $app_def = $json->decode(scalar read_file($app_def_file));
     my $params =  $json->decode(scalar read_file($params_file));
-    
+
 }
 
 1;

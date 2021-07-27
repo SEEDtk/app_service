@@ -1,0 +1,7 @@
+session: "YAML"
+
+template: "template_toolkit"
+engines:
+  session:
+    YAML:
+      session_dir: "./sessions"

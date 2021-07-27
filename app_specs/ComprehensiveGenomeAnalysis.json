@@ -3,9 +3,6 @@
    "label" : "Comprehensive Genome Analysis",
    "description" : "Analyze a genome from reads or contigs, generating a detailed analysis report.",
    "parameters" : [
-      #
-      # Common parameters
-      #
       {
          "desc" : "Input type (reads / contigs / genbank)",
 	 "required": 1,
@@ -31,9 +28,6 @@
          "id" : "output_file",
          "type" : "wsid"
       },
-      #
-      # Assembly parameters
-      #
       {
          "id" : "paired_end_libs",
          "allow_multiple" : true,
@@ -130,7 +124,7 @@
                   "nanopore"
                ]
             }
-         ],
+         ]
       },
       {
          "label" : "SRR ID",
@@ -199,9 +193,6 @@
          "required" : 0,
          "desc" : "Filter out contigs with low read depth in final assembly"
       },
-      #
-      # Annotation parameters. Exactly one of reads, contigs, or genbank file input is required.
-      #
     {
       "id": "genbank_file",
       "required": 0,
@@ -260,9 +251,6 @@
          "desc" : "Domain of the submitted genome",
          "required" : 1
       },
-      #
-      # Control parameters
-      #
       {
          "default" : false,
          "desc" : "Make this genome public",

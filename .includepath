@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includepath>
+  <includepathentry path="${env_var:HOME}/dev_container/modules/Workspace/lib" />
+  <includepathentry path="${resource_loc:/app_service/lib}" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/p3_auth/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/p3_cli/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/p3_code/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/p3_core/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/p3_deployment/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/p3diffexp/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/seed_core/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/seed_gjo/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/seed_rast/lib" />
+  <includepathentry path="${env_var:HOME}/dev_container/modules/typecomp/lib" />
+</includepath>
+

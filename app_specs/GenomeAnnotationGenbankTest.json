@@ -197,8 +197,7 @@
                             "required":0,
                             "type":"string",
                             "default":null,
-                            "desc":"",
-                            "default":""
+                            "desc":""
                         }
                     ]
                 },
@@ -215,8 +214,7 @@
                             "required":0,
                             "type":"string",
                             "default":null,
-                            "desc":"",
-                            "default":""
+                            "desc":""
                         }
                     ]
                 },
@@ -334,8 +332,7 @@
                             "required":0,
                             "type":"string",
                             "default":null,
-                            "desc":"",
-                            "default":""
+                            "desc":""
                         }
                     ]
                 },
