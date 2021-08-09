@@ -314,6 +314,7 @@ sub process_uploads {
         my $size = -s $source;
         # Now we want to upload $source to $dest.
         eval {
+            print "Uploading $source file of type \"$type\" to $dest.\n";
             $ws->save_file_to_file($source, {}, $dest, $type, $overwriteFlag, 1, $token->token());
         };
         # Insure the upload worked.
