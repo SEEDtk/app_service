@@ -22,6 +22,7 @@ package Bio::KBase::AppService::UploadSpec;
     use warnings;
     use File::Basename;
     use Bio::P3::Workspace::WorkspaceClientExt;
+    use POSIX;
 
 =head1 Object for Managing Uploads in P3 CLI
 
@@ -43,6 +44,11 @@ Name of workspace directory to which local files should be uplaoded.
 If a file to be uploaded already exists and this parameter is specified, it will be overwritten; otherwise, the script will error out.
 
 =back
+
+=head2 Output Specificiers
+
+The standard positional parameters for submission scripts are the output path and an output folder name.  These can be
+processed using the L</output_spec> method.
 
 =head2 Special Methods
 
@@ -154,6 +160,51 @@ sub _setOverwrite {
 
 =head2 Query Methods
 
+=head3 output_spec
+
+    my ($outPath, $outName) = $uploader->output_spec($inPath, $inName);
+
+Fix and return the output path and output name parameters from a submission script.  These are usually left in C<@ARGV> after argument
+processing with L<GetOpt::Long/GetOptions> is complete, so a typical invocation is
+
+    my ($outPath, $outName) = $uploader->output_spec(@ARGV);
+
+=over 4
+
+=item inPath
+
+Output path name.  This must be a workspace directory name, without the C<ws:> prefix.
+
+=item inName
+
+Output folder name.  This is a simple string that must be a legal job or folder name.  It will be created in the output path
+directory.
+
+=item RETURN
+
+Returns a list containing the normalized output path and folder names.
+
+=back
+
+=cut
+
+sub output_spec {
+    my ($self, $inPath, $inName) = @_;
+    my $outPath = $inPath;
+    # Just in case, remove the ws prefix.
+    $outPath =~ s/^ws://;
+    # Normalize the output name.
+    $outPath = $self->normalize($outPath);
+    # Verify the folder exists.
+    my $ws = $self->{ws};
+    my $stat = $ws->stat($outPath);
+    if (! $stat || ! S_ISDIR($stat->mode)) {
+        die "Output path $outPath does not exist.";
+    }
+    return ($outPath, $inName);
+
+}
+
 =head3 normalize
 
     my $realPath = $uploader->normalize($path);
@@ -230,6 +281,8 @@ sub fix_file_name {
         # Here we must upload from the local file system.
         if (! $self->{uploadPath}) {
             die "Local file specified, but no workspace-upload-path provided.";
+        } elsif (! -f $inputName) {
+            die "Local file $inputName is not found or invalid.";
         }
         my $base = File::Basename::basename($inputName);
         $retVal = $self->normalize($self->{uploadPath} . $base);

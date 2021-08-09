@@ -25,9 +25,25 @@ package Bio::KBase::AppService::CommonSpec;
 =head1 Common Options for Command-Line Scripts
 
 This object processes options common to all command-line scripts.  Use L</options> to include these options in the
-L<Getopt::Long/GetOptions> parameter list. Currently, C<--dry-run> and C<--help> are included.
+L<Getopt::Long/GetOptions> parameter list.
 
-=head2 Special Methods
+There are also common methods for script management in here.
+
+The parameters handled by this library include the following.
+
+=over 4
+
+=item --help
+
+Display the command-line usage and exit. The usage will be taken from a level-1 POD section called "Usage Synopsis".
+
+=item --dry-run
+
+Upload the files, display the resulting parameters, and exit without invoking the service.
+
+=back
+
+=head2 Methods
 
 =head3 new
 
@@ -55,7 +71,7 @@ Return the options list for the common options.
 sub options {
     my ($self) = @_;
     return ("dry-run" => sub { $self->{dry} = 1; },
-            "help|h" => sub { print pod2usage(-verbose => 99, -exitVal => 0); });
+            "help|h" => sub { print pod2usage({-verbose => 99, -sections => 'Usage Synopsis', -exitVal => 0}); });
 }
 
 =head3 check_dry_run
@@ -78,6 +94,57 @@ sub check_dry_run {
         print "Data submitted would be:\n\n";
         print JSON::XS->new->pretty(1)->encode($param);
         exit(0);
+    }
+}
+
+=head3 submit
+
+    $commoner->submit($app_service, $uploader, $params, $serviceName => $messageName);
+
+Submit a job request to PATRIC.  This also does uploads and a dry-run check.
+
+=over 4
+
+=item app_service
+
+Application service helper.
+
+=item uploader
+
+L<Bio::KBase::AppService::UploadSpec> object for file management, or C<undef> if no files need to be uploaded.
+
+=item params
+
+Parameter structure for the service.
+
+=item serviceName
+
+Formal name of the service.
+
+=item messageName
+
+Informal service name for messages.
+
+=back
+
+=cut
+
+sub submit {
+    my ($self, $app_service, $uploader, $params, $serviceName, $messageName) = @_;
+    # Do the dry-run check.
+    $self->check_dry_run($params);
+    # Process uploads.
+    if ($uploader) {
+        $uploader->process_uploads();
+    }
+    # Now submit the job request.
+    my $task = eval { $app_service->start_app($serviceName, $params, ''); };
+    if ($@) {
+        die "Error submitting $messageName to PATRIC: $@";
+    } elsif (! $task) {
+        die "Unknown error submitting $messageName to PATRIC.";
+    } else {
+        print "Submitted $messageName with id $task->{id}\n";
     }
 }
 

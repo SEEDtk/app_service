@@ -28,6 +28,71 @@ IDs from the NCBI Sequence Read Archive, interleaved single-end libraries, and s
 the L<Getop::Long/GetOptions> specifications for the four input types as well as their modifiers and provides a method to parse
 the options into a parameter object.
 
+The parameters handled by this object are as follows.
+
+=over 4
+
+=item --workspace-path-prefix
+
+Base workspace directory for relative workspace paths.
+
+=item --workspace-upload-path
+
+Name of workspace directory to which local files should be uplaoded.
+
+=item --overwrite
+
+If a file to be uploaded already exists and this parameter is specified, it will be overwritten; otherwise, the script will error out.
+
+=item --paired-end-lib
+
+Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-libs left.fa right.fa>.  The
+libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
+from the local file system.  This parameter may be specified multiple times.
+
+=item --interleaved-lib
+
+A single library of paired-end reads in interleaved format.  This must be a FASTQ file with paired reads mixed together, the forward read
+always preceding the reverse read.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
+from the local file system.  This parameter may be specified multiple times.
+
+=item --single-end-lib
+
+A library of single reads.  This must be a FASTQ file.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are
+uploaded from the local file system.  This parameter may be specified multiple times.
+
+=item --srr-id
+
+A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
+multiple times.
+
+=item --platform
+
+The sequencing platform for the subsequent read library or libraries.  Valid values are C<infer>, C<illumina>, C<pacbio>, or <nanopore>.
+The default is C<infer>.
+
+=item --insert-size-mean
+
+The average size of an insert in all subsequent read libraries, used for optimization.
+
+=item --insert-size-stdev
+
+The standard deviation of the insert sizes in all subsequent read libraries, used for optimization.
+
+=item --read-orientation-inward
+
+Indicates that all subsequent read libraries have the standard read orientation, with the paired ends facing inward.  This is the default.
+
+=item --read-orientation-outward
+
+Indicates that all subseqyent read libraries have reverse read orientation, with the paired ends facing outward.
+
+=back
+
+=cut
+
+use constant LEGAL_PLATFORMS => { infer => 1, illumina => 1, pacbio => 1, nanopore => 1 };
+
 =head2 Special Methods
 
 =head3 new
@@ -76,11 +141,11 @@ incorporated in the list.
 
 sub lib_options {
     my ($self) = @_;
-    return ("paired-end-lib=s{2}" => sub { $self->_pairedLib($_[1]); },
-            "interleaved-lib=s" => sub { $self->_interleavedLib($_[1]); },
+    return ("paired-end-lib|paired-end-libs=s{2}" => sub { $self->_pairedLib($_[1]); },
+            "interleaved-lib|interlaced-lib=s" => sub { $self->_interleavedLib($_[1]); },
             "single-end-lib=s" => sub { $self->_singleLib($_[1]); },
             "srr-id=s" => sub { $self->_srrDownload($_[1]); },
-            "platform=s" => sub { $self->{platform} = $_[1]; },
+            "platform=s" => sub { $self->_setPlatform($_[1]); },
             "read-orientation-outward" => sub { $self->{read_orientation_outward} = 1; },
             "read-orientation-inward" => sub { $self->{read_orientation_outward} = 0; },
             "insert-size-mean=i" => sub { $self->{insert_size_mean} = $_[1]; },
@@ -218,7 +283,53 @@ sub _srrDownload {
     push @{$self->{srr_ids}}, $srr_id;
 }
 
+=head3 _setPlatform
+
+    $reader->_setPlatform($platform);
+
+Specify the platform for subsequent read libraries.  This throws an error if the platform is invalid.
+
+=over 4
+
+=item platform
+
+Platform name to use.
+
+=back
+
+=cut
+
+sub _setPlatform {
+    my ($self, $platform) = @_;
+    if (! LEGAL_PLATFORMS->{$platform}) {
+        die "Invalid platform name \"$platform\" specified.";
+    } else {
+        $self->{platform} = $platform;
+    }
+}
+
 =head2 Query Methods
+
+=head3 check_for_reads
+
+    my $flag = $uploader->check_for_reads();
+
+Return TRUE if there are read files specified, else FALSE.
+
+=cut
+
+sub check_for_reads {
+    my ($self) = @_;
+    my $retVal;
+    if (scalar @{$self->{paired_end_libs}}) {
+        $retVal = 1;
+    } elsif (scalar @{$self->{single_end_libs}}) {
+        $retVal = 1;
+    } elsif (scalar @{$self->{srr_ids}}) {
+        $retVal = 1;
+    }
+    return $retVal;
+}
 
 =head3 store_libs
 
