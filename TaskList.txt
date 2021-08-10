@@ -24,7 +24,7 @@ Here is the list of services I was asked to implement.
 •	Tree
 •	MSA
 •	Rva Genotyper
-•	Codon Tree
+•	*Codon Tree
 •	BLAST
 •	SNP-analysis
 •	FastqUtils
