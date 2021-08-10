@@ -1,0 +1,101 @@
+{
+  "id": "MSA",
+  "script": "App-MSA",
+  "label": "Multiple sequence alignment variation service",
+  "description": "Compute the multiple sequence alignment and analyze SNP/variance.",
+  "parameters": [
+    {
+      "id": "fasta_files",
+      "type": "group",
+      "allow_multiple": true,
+      "required": 0,
+      "default": null,
+      "group": [
+        {
+          "id": "file",
+          "required": 1,
+          "label": "Fasta file",
+          "desc": "homologous sequences",
+          "wstype": "feature_protein_fasta",
+          "type": "wstype"
+        },
+        {
+          "id": "type",
+          "label": "file format",
+          "required": 1,
+          "default": "feature_dna_fasta",
+          "desc": "The file format type.",
+          "type": "enum",
+          "enum": [
+            "feature_dna_fasta",
+            "feature_protein_fasta"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feature_groups",
+      "allow_multiple": true,
+      "required": 0,
+      "default": null,
+      "label": "Feature groups",
+      "desc": "Feature groups",
+      "wstype": "feature_group",
+      "type": "wstype"
+    },
+    {
+      "id": "aligner",
+      "allow_multiple": false,
+      "label": "multiple sequence aligner",
+      "required": 0,
+      "default": "Muscle",
+      "desc": "Tool used for aligning multiple sequences to each other.",
+      "type": "enum",
+      "enum": [
+        "Muscle",
+        "Mafft",
+        "progressiveMauve"
+      ]
+    },
+    {
+      "id": "alphabet",
+      "allow_multiple": false,
+      "label": "sequence alphabet",
+      "required": 1,
+      "default": "dna",
+      "desc": "Determines which sequence alphabet is present.",
+      "type": "enum",
+      "enum": [
+        "dna",
+        "protein"
+      ]
+    },
+    {
+      "id": "fasta_keyboard_input",
+      "allow_multiple": false,
+      "desc": "Text input for a fasta file.",
+      "required": 0,
+      "default": "",
+      "label": "fasta keyboard input",
+      "type": "string"
+    },
+    {
+      "id": "output_path",
+      "allow_multiple": false,
+      "label": "Output Folder",
+      "required": 1,
+      "default": null,
+      "desc": "Path to which the output will be written. Defaults to the directory containing the input data. ",
+      "type": "folder"
+    },
+    {
+      "id": "output_file",
+      "allow_multiple": false,
+      "label": "File Basename",
+      "required": 1,
+      "default": null,
+      "desc": "Basename for the generated output files. Defaults to the basename of the input data.",
+      "type": "wsid"
+    }
+  ]
+}
