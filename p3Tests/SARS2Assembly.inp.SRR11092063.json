@@ -1,0 +1,12 @@
+{
+  "taxonomy_id": 2697049,
+  "domain": "Viruses",
+  "input_type": "reads",
+  "srr_ids": ["SRR11092063"],
+  "recipe": "auto",
+  "output_path": "/olson@patricbrc.org/home/vtest",
+  "output_file": "SRR11092063",
+  "keep_intermediates": 0,
+  "scientific_name": "SARS2 test",
+  "code": 1
+}

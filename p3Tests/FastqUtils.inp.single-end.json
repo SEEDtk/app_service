@@ -1,0 +1,12 @@
+{
+    "output_path": "/anwarren@patricbrc.org/home/debug",
+    "output_file": "test_sra_repo",
+    "recipe": [
+        "FastQC"
+    ],
+    "srr_libs": [
+        {
+            "srr_accession": "SRR4240359"
+        }
+    ]
+} 

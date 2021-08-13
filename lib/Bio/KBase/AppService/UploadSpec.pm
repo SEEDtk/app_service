@@ -80,23 +80,59 @@ sub new {
         upload_queue => []
     };
     bless $retVal, $class;
+    # Parse out our parameters from ARGV.  We have to make sure they are processed first.
+    my @buffer;
+    my $i = 0;
+    while ($i < scalar @ARGV) {
+        my $this = $ARGV[$i];
+        my $next = $ARGV[$i+1];
+        if ($this eq '--workspace-upload-path') {
+            _checkNext($this, $next);
+            $retVal->_setPath($next);
+            $i += 2;
+        } elsif ($this eq '--workspace-path-prefix') {
+            _checkNext($this, $next);
+            $retVal->_setPrefix($next);
+            $i += 2;
+        } elsif ($this eq '--overwrite') {
+            $retVal->_setOverwrite();
+            $i++;
+        } else {
+            push @buffer, $this;
+            $i++;
+        }
+    }
+    # Restore the remaining parameters.
+    @ARGV = @buffer;
     return $retVal;
 }
 
-=head3 file_options
 
-    my @options = $uploader->file_options();
+=head3 _checkNext
 
-This returns a list of the L<Getopt::Long::Descriptive> entries for file specification.
+    Bio::KBase::AppService::UploadSpec::checkNext($name, $value);
+
+Verify that the current parameter has a value.
+
+=over 4
+
+=item name
+
+Parameter name.
+
+=item value
+
+Proposed parameter value.
+
+=back
 
 =cut
 
-sub file_options {
-    my ($self) = @_;
-    return ("workspace-path-prefix|p=s" => sub { $self->_setPrefix($_[1]); },
-            "workspace-upload-path|P=s" => sub { $self->_setPath($_[1]); },
-            "overwrite|f" => sub { $self->_setOverwrite(); }
-         );
+sub _checkNext {
+    my ($name, $value) = @_;
+    if ($value =~ /^--/ || ! defined $value) {
+        die "$name requires a value.";
+    }
 }
 
 =head3 _setPrefix

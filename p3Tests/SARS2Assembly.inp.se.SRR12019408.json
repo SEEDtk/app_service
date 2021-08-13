@@ -1,0 +1,12 @@
+{
+  "taxonomy_id": 2697049,
+  "domain": "Viruses",
+  "input_type": "reads",
+  "srr_ids": ["SRR12019408"],
+  "recipe": "cdc-illumina",
+  "output_path": "/olson@patricbrc.org/home/vtest",
+  "output_file": "SRR11621984",
+  "keep_intermediates": 0,
+  "scientific_name": "SARS2 test",
+  "code": 1
+}

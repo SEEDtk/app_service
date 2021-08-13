@@ -1,0 +1,11 @@
+{
+  "single_end_libs": [
+    {
+      "read": "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeAssembly2/data/6-genomes-align.head.fa"
+    }
+  ],
+  "recipe": "auto",
+  "output_path": "/olson@patricbrc.org/test/assembly2",
+  "output_file": "allan-short-read-fast.06", 
+  "debug_level": 1
+}

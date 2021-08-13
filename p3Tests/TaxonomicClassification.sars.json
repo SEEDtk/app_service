@@ -1,0 +1,10 @@
+{
+  "input_type" : "reads",
+"srr_ids": ["SRR11365240"],
+  "algorithm": "Kraken2",
+  "database": "Kraken2",
+  "output_path": "/olson@patricbrc.org/test/kraken2",
+  "output_file": "kr12"
+}
+
+

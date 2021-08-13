@@ -1,14 +1,13 @@
-=head1 Submit a Metagenomic Read Mapping Job
+=head1 Submit a Fastq Utilities Job
 
-This script submits a Metagenomic Read-Mapping job to PATRIC.  It takes input from read libraries and uses either the CARD or VFDB database
-to identify the nature of the incoming reads.
+This script submits a Fastqutils job to PATRIC.  It allows input from all supported read libraries, and requests a list
+of services to be performed.
 
 =head1 Usage Synopsis
 
-    p3-submit-metagenomic-read-mapping [options] output-path output-name
+    p3-submit-fastqutils [options] output-path output-name
 
-Start a metagenomic read mapping, producing output in the specified workspace path, using the specified name for the base filename
-of the output files.
+Start a FASTQ processing job specified workspace path, using the specified name for the output job folder.
 
 =head2 Command-Line Options
 
@@ -36,30 +35,21 @@ uploaded from the local file system.  This parameter may be specified multiple t
 A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
 multiple times.
 
-=item --platform
+=item --trim
 
-The sequencing platform for the subsequent read library or libraries.  Valid values are C<infer>, C<illumina>, C<pacbio>, or <nanopore>.
-The default is C<infer>.
+Trim the sequences.  This operation is performed before quality control.
 
-=item --insert-size-mean
+=item --paired_filter
 
-The average size of an insert in all subsequent read libraries, used for optimization.
+Perform paired-end filtering.  This operation is always performed first.
 
-=item --insert-size-stdev
+=item --fastqc
 
-The standard deviation of the insert sizes in all subsequent read libraries, used for optimization.
+Run the FASTQ quality control analysis.  This operation is performed after trimming.
 
-=item --read-orientation-inward
+=item --reference-genome-id
 
-Indicates that all subsequent read libraries have the standard read orientation, with the paired ends facing inward.  This is the default.
-
-=item --read-orientation-outward
-
-Indicates that all subsequent read libraries have reverse read orientation, with the paired ends facing outward.
-
-=item --gene-set-name
-
-The gene set name-- C<CARD> or C<VFDB>.  The default is C<CARD>.
+If specified, the ID of a genome in PATRIC to which the reads will be aligned.  This operation is always performed last.
 
 =item --workspace-path-prefix
 
@@ -93,8 +83,7 @@ use Data::Dumper;
 use Bio::KBase::AppService::CommonSpec;
 use Bio::KBase::AppService::ReadSpec;
 use Bio::KBase::AppService::UploadSpec;
-
-use constant GENE_SET_NAMES => { 'VFDB' => 1, 'CARD' => 1 };
+use Bio::KBase::AppService::GenomeIdSpec;
 
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
@@ -110,12 +99,17 @@ my $reader = Bio::KBase::AppService::ReadSpec->new($uploader);
 my $app_service = Bio::KBase::AppService::Client->new();
 
 # Declare the option variables and their defaults.
-my $minContigLength = 300;
-my $minContigCov = 5;
-my $geneSetName = 'CARD';
+my $trim = 0;
+my $pairedFilter = 0;
+my $fastqc = 0;
+my $align = 0;
+my $referenceGenomeId;
 # Now we parse the options.
 GetOptions($commoner->options(), $reader->lib_options(),
-        'gene-set-name=s' => \$geneSetName,
+        'trim' => \$trim,
+        'paired-filter' => \$pairedFilter,
+        'fastqc' => \$fastqc,
+        'reference-genome-id|ref|genome=s' => \$referenceGenomeId
         );
 # Verify the argument count.
 if (! $ARGV[0] || ! $ARGV[1]) {
@@ -123,20 +117,37 @@ if (! $ARGV[0] || ! $ARGV[1]) {
 } elsif (scalar @ARGV > 2) {
     die "Too many parameters-- only output path and output name should be specified.";
 }
-if (! $reader->check_for_reads()) {
-    die "Must specify some type of FASTQ input.";
-}
 # Handle the output path and name.
 my ($outputPath, $outputFile) = $uploader->output_spec(@ARGV);
+# We will build the recipe list here.
+my $recipes = [];
+if ($pairedFilter) { push @$recipes, 'paired_filter'; }
+if ($trim) { push @$recipes, 'trim'; }
+if ($fastqc) { push @$recipes, 'fastqc' }
+if ($referenceGenomeId) {
+    if (! Bio::KBase::AppService::GenomeIdSpec::validate_genomes($referenceGenomeId)) {
+        die "Invalid reference genome ID.";
+    }
+    push @$recipes, 'align';
+}
+if (! @$recipes) {
+    die "No service specified.";
+}
 # Build the parameter structure.
 my $params = {
-    gene_set_type => 'predefined_list',
-    gene_set_fasta => '',
-    gene_set_name => $geneSetName,
+    recipe => $recipes,
     output_path => $outputPath,
-    output_file => $outputFile,
+    output_file => $outputFile
 };
-# Add the read input specifier.
+if (! $reader->check_for_reads()) {
+    die "You must specify a FASTQ source.";
+}
+# Add the input FASTQ files.
 $reader->store_libs($params);
+# Add the reference genome ID, if needed.
+if ($referenceGenomeId) {
+    $params->{reference_genome_id} = $referenceGenomeId;
+}
+
 # Submit the job.
-$commoner->submit($app_service, $uploader, $params, MetagenomicReadMapping => 'read-mapping');
+$commoner->submit($app_service, $uploader, $params, FastqUtils => 'fastq utilities');

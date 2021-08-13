@@ -1,0 +1,18 @@
+{
+   "_preflight" : {
+      "cpu" : 2,
+      "memory" : "8G",
+      "policy_data" : {},
+      "runtime" : 3600,
+      "storage" : 137550
+   },
+   "contigs" : "/olson@patricbrc.org/home/.A_Wyoming_06_2020/A_Wyoming_06_2020.contigs.fasta",
+   "my_label" : "wyoming",
+   "output_file" : "Severe acute respiratory syndrome coronavirus 2 wyoming",
+   "output_path" : "/olson@patricbrc.org/home/test",
+   "recipe" : "viral",
+   "reference_genome_id" : "",
+   "scientific_name" : "Severe acute respiratory syndrome coronavirus 2 wyoming",
+   "tax_id" : "2697049",
+   "taxonomy_id" : "2697049"
+}

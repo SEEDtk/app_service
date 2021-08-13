@@ -111,7 +111,7 @@ if (! $p3token->token()) {
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();
 my $uploader = Bio::KBase::AppService::UploadSpec->new($p3token);
-my $reader = Bio::KBase::AppService::ReadSpec->new($uploader);
+my $reader = Bio::KBase::AppService::ReadSpec->new($uploader, assembling => 1);
 
 # Get the application service helper.
 my $app_service = Bio::KBase::AppService::Client->new();
@@ -121,7 +121,7 @@ my $saveClassified;
 my $saveUnclassified;
 my $contigs;
 # Now we parse the options.
-GetOptions($commoner->options(), $uploader->file_options(), $reader->lib_options(),
+GetOptions($commoner->options(), $reader->lib_options(),
         'contigs=s' => \$contigs,
         'save-classified' => \$saveClassified,
         'save-unclassified' => \$saveUnclassified

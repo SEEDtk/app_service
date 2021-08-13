@@ -1,0 +1,11 @@
+{
+  "single_end_libs": [
+    {
+      "read": "/olson@patricbrc.org/home/toy2.fq"
+    }
+  ],
+  "recipe": "auto",
+  "output_path": "/olson@patricbrc.org/test/assembly2",
+  "output_file": "allan-short-read-fast.06", 
+  "debug_level": 1
+}

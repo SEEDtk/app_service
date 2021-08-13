@@ -1,0 +1,16 @@
+{
+  "bootstraps": "100",
+  "output_file": "test",
+  "genome_ids": [
+    "2006848.36",
+    "1076934.5",
+    "1207076.3",
+    "1235789.3",
+    "1042404.3"
+  ],
+  "optional_genome_ids": [],
+  "number_of_genes": "100",
+  "output_path": "/olson@patricbrc.org/home/test",
+  "max_genomes_missing": 0,
+  "max_allowed_dups": 0
+}

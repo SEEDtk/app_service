@@ -1,0 +1,27 @@
+{
+    "id": "JIRA_4615",
+    "output_path": "/jsporter@patricbrc.org/home/Test_Files/",
+    "output_file": "contigs_with_empty_alignments",
+    "recipe": "gumbel",
+    "protocol": "mme1",
+    "primer": "CTGTTN",
+    "reference_genome_id": "400095.4",
+    "experimental_conditions": [
+        "control"
+    ],
+    "read_files": {
+            "control": {
+	                "replicates": [
+	                    {
+			                        "read": "/olson@patricbrc.org/PATRIC-QA/applications/App-FastqUtils/data/SRR13258538.10k.fastq"
+			                    }
+	                ],
+	                "library": "control"
+	            }
+	        },
+        "contrasts": [
+		        [
+			            "control"
+			        ]
+				    ]
+}

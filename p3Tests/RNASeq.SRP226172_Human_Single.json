@@ -1,0 +1,32 @@
+{
+    "output_path":"/olson@patricbrc.org/PATRIC-QA/applications/App-RNASeq",
+    "output_file":"out",
+    "recipe":"Host",
+    "reference_genome_id":"9606.33",
+    "feature_count":"htseq",
+    "contrasts": [
+        [2,1]
+    ],
+    "paired_end_libs": [
+        {
+            "condition":1,
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307418_sample.fastq"
+        },
+        {
+            "condition":1,
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307419_sample.fastq"
+        },
+        {
+            "condition":2,
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307420_sample.fastq"
+        },
+        {
+            "condition":2,
+            "read1":"/olson@patricbrc.org/PATRIC-QA/DataSets/RNA-seq/SRP226172_Human_Single/SRR10307421_sample.fastq"
+        }
+    ],
+    "experimental_conditions": [
+        "control",
+        "avirulent"
+    ]
+}

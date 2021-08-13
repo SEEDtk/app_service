@@ -1,0 +1,13 @@
+{
+   "trim" : true,
+   "output_path" : "/olson@patricbrc.org/home/test",
+   "debug_level": 1,
+   "min_contig_cov" : 5,
+   "min_contig_len" : 300,
+   "recipe" : "meta-spades",
+   "output_file" : "ERR1913166",
+   "srr_ids" : [
+      "ERR1913166"
+   ],
+   "genome_size" : 5000000
+}

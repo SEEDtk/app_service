@@ -1,0 +1,16 @@
+{
+   "contigs": "/olson@patricbrc.org/PATRIC-QA/applications/App-MetagenomeBinning/data/SRR8580939.fasta",
+   "xpaired_end_libs" : [
+      {
+         "read1" : "/olson@patricbrc.org/home/toy(1).fq",
+         "read2" : "/olson@patricbrc.org/home/toy1.fq"
+      }
+   ],
+   "genome_group" : "TEST",
+   "assembler" : "metaspades",
+   "perform_bacterial_annotation" : true,
+   "perform_viral_annotation" : true,
+   "output_path" : "/olson@patricbrc.org/home/test",
+   "output_file" : "test"
+}
+

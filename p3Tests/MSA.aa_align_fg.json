@@ -1,0 +1,16 @@
+{
+    "fasta_files": [
+        {
+            "file": "/olson@patricbrc.org/PATRIC-QA/applications/App-MSA/output.afa",
+            "type": "aligned_protein_fasta"
+        }
+    ],
+    "feature_groups": [
+        "/olson@patricbrc.org/PATRIC-QA/applications/App-MSA/AlignMe1"
+    ],
+    "aligner": "Muscle",
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-MSA",
+    "output_file": "alignment_fg_test",
+    "fasta_keyboard_input": "",
+    "alphabet": "protein"
+}

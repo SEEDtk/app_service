@@ -1,0 +1,12 @@
+{
+  "paired_end_libs": [
+    {
+      "read1": "/ARWattam@patricbrc.org/Fastq share/ERR023730_1.fastq",
+      "read2": "/ARWattam@patricbrc.org/Fastq share/ERR023730_2.fastq"
+    }
+  ],
+  "recipe": "auto",
+  "output_path": "/olson@patricbrc.org/test/assembly2",
+  "output_file": "allan-short-read-fast.06", 
+  "debug_level": 1
+}

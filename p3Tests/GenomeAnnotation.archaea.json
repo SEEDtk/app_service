@@ -1,0 +1,8 @@
+{
+"contigs": "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeAnnotation/187420.1.fasta",
+"scientific_name": "Methanothermobacter thermautotrophicus ",
+"taxonomy_id": 187420,
+"output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeAnnotation",
+"output_file": "buch65",
+"skip_indexing": 0
+}

@@ -1,0 +1,13 @@
+{
+   "output_path" : "/anwarren@patricbrc.org/AndrewWarrenPublic/TestFolder",
+   "paired_end_libs" : [],
+   "recipe" : [
+      "Trim"
+   ],
+   "single_end_libs" : [
+      {
+         "read" : "/olson@patricbrc.org/PATRIC-QA/DataSets/FastqUtils/trimgalore_test_block_barcode.fastq.gz"
+      }
+   ],
+   "output_file" : "Trim_002"
+}

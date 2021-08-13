@@ -1,0 +1,15 @@
+{
+  "skip_indexing": 1,
+  "min_contig_len": 300,
+  "taxonomy_id": "209",
+  "scientific_name": "Helicobacter m1 normalizedX2",
+  "min_contig_cov": 5,
+  "domain": "Bacteria",
+  "contigs": "/olson@patricbrc.org/PATRIC-QA/applications/App-ComprehensiveGenomeAnalysis/data/bug.764007/assembly_contigs.fasta",
+  "output_file": "Helicobacter m1 normalizedX2",
+  "output_path": "/olson@patricbrc.org/home/test",
+  "input_type": "contigs",
+  "reference_genome_id": "",
+  "recipe": "auto",
+  "code": "11"
+}

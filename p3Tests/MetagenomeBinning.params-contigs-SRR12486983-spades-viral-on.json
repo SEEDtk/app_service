@@ -1,0 +1,12 @@
+{
+    "contigs": "/olson@patricbrc.org/test/SRR12486983/spades.contigs.fa",
+    "output_path": "/olson@patricbrc.org/test/SRR12486983",
+  "output_file": "spades.01",
+    "genome_group": "test-group",
+    "force_inline_annotation": true,
+    "force_local_assembly": true,
+    "perform_bacterial_annotation": true,
+    "perform_viral_binning": true,
+    "perform_viral_annotation": true
+}
+

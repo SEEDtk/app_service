@@ -1,0 +1,9 @@
+{
+   "genbank_file" : "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeAnnotationGenbank/224915.gb",
+   "import_only" : 0,
+   "output_file" : "out",
+   "output_path" : "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeAnnotationGenbank",
+   "queue_nowait" : 0,
+   "skip_indexing" : 0,
+   "skip_workspace_output": 1
+}

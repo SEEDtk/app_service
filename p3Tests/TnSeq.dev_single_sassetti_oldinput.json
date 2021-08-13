@@ -1,0 +1,26 @@
+{
+    "id": "",
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-TnSeq/Sassetti",
+    "output_file": "old_interface",
+    "recipe": "gumbel",
+    "reference_genome_id": "83332.12",
+    "experimental_conditions": [
+        "control"
+    ],
+    "read_files": {
+            "control": {
+	                "replicates": [
+	                    {
+			                        "read1": "/olson@patricbrc.org/PATRIC-QA/applications/App-TnSeq/Sassetti/SRR12246716_1.5k.fastq",
+			                        "read2": "/olson@patricbrc.org/PATRIC-QA/applications/App-TnSeq/Sassetti/SRR12246716_2.5k.fastq"
+			                    }
+	                ],
+	                "library": "control"
+	            }
+	        },
+        "contrasts": [
+		        [
+			            "control"
+			        ]
+				    ]
+}

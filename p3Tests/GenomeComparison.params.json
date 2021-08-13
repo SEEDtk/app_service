@@ -1,0 +1,15 @@
+{
+    "genome_ids": [
+        "511145.12",
+        "562.10576",
+        "585057.6",
+        "585056.7",
+        "685038.3"
+    ],
+    "output_file": "Ecoli MRSN388634 comparison",
+    "min_seq_cov": 0.3,
+    "min_ident": 0.1,
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeComparison",
+    "reference_genome_index": 1,
+    "max_e_val": "1e-5"
+}

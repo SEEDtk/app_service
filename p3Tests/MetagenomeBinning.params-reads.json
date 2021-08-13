@@ -1,0 +1,10 @@
+{
+  "paired_end_libs": [
+      "/olson@patricbrc.org/Binning/Data/SRR2188006_1.fastq.gz",
+      "/olson@patricbrc.org/Binning/Data/SRR2188006_2.fastq.gz"
+  ],
+  "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-MetagenomeBinning",
+  "output_file": "mg_out10",
+  "genome_group": "test-group"
+}
+

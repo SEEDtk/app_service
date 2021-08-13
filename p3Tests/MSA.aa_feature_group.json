@@ -1,0 +1,10 @@
+{
+    "feature_groups": [
+        "/olson@patricbrc.org/PATRIC-QA/applications/App-MSA/AlignMe1"
+    ],
+    "aligner": "Muscle",
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-MSA",
+    "output_file": "aa_feature_group",
+    "fasta_keyboard_input": "",
+    "alphabet": "protein"
+}

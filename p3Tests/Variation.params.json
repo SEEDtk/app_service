@@ -1,0 +1,15 @@
+{
+    "single_end_libs": [
+        {
+            "read": "/olson@patricbrc.org/PATRIC-QA/applications/App-Variation/SRR396518.fastq.gz"
+        },
+        {
+            "read": "/olson@patricbrc.org/PATRIC-QA/applications/App-Variation/SRR396519.fastq.gz"
+        }
+    ],
+    "output_file": "E coli variation",
+    "mapper": "BWA-mem",
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-Variation",
+    "reference_genome_id": "511145.12",
+    "caller": "FreeBayes"
+}

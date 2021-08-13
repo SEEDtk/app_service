@@ -1,0 +1,11 @@
+{
+    "contigs": "/olson@patricbrc.org/home/phi-phage.fa",
+    "scientific_name": "Buchnera aphidicola str. Bp (Baizongia pistaciae)",
+    "code": 11,
+    "domain": "Virus",
+    "taxonomy_id": 1243,
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-GenomeAnnotation",
+    "output_file": "phageout",
+    "recipe": "phage",
+    "skip_indexing": 1
+}

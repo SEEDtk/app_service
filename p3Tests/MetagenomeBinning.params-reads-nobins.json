@@ -1,0 +1,12 @@
+{
+  "paired_end_libs": [
+    {
+      "read1": "/olson@patricbrc.org/Binning/Data/SRR2248562_1.fastq.gz",
+      "read2": "/olson@patricbrc.org/Binning/Data/SRR2248562_2.fastq.gz"
+    }
+  ],
+  "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-MetagenomeBinning",
+  "output_file": "mg_out10",
+  "genome_group": "test-group"
+}
+

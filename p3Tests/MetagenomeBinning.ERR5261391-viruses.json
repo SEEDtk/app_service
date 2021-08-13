@@ -1,0 +1,9 @@
+{
+   "contigs": "/olson@patricbrc.org/PATRIC-QA/applications/App-MetagenomeBinning/data/ERR5261391.fasta",
+   "genome_group" : "TEST",
+   "perform_bacterial_annotation" : false,
+   "perform_viral_binning" : true,
+   "output_path" : "/olson@patricbrc.org/home/test",
+   "output_file" : "test"
+}
+

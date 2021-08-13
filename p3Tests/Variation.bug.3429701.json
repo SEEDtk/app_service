@@ -1,0 +1,13 @@
+{
+   "caller" : "FreeBayes",
+   "mapper" : "BWA-mem",
+   "output_file" : "AG21-0302",
+   "output_path" : "/olson@patricbrc.org/PATRIC-QA/applications/App-Variation",
+   "paired_end_libs" : [
+      {
+         "read1" : "/olson@patricbrc.org/PATRIC-QA/applications/App-Variation/data/AG21-0302_S4_L001_R1_001.subsamp.fastq",
+         "read2" : "/olson@patricbrc.org/PATRIC-QA/applications/App-Variation/data/AG21-0302_S4_L001_R2_001.subsamp.fastq"
+      }
+   ],
+   "reference_genome_id" : "1280.12234"
+}

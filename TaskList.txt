@@ -1,48 +1,19 @@
-I would say "no problem", but in fact it feels like the last time I used plain old Getopt::Long was another life. ??
 
-On Tue, Aug 3, 2021, 1:42 PM Olson, Robert D. <olson@mcs.anl.gov> wrote:
-Here are some of the others:
- 
-https://github.com/BV-BRC/p3_msa/blob/master/app_specs/MSA.json
-https://github.com/olsonanl/app_service/blob/dev-slurm/app_specs/CodonTree.json
-https://github.com/olsonanl/homology_service/blob/master/app_specs/HomologyService.json
-https://github.com/PATRIC3/p3_fqutils/blob/master/app_specs/FastqUtils.json
-https://github.com/PATRIC3/sars2_assembly/blob/master/app_specs/ComprehensiveSARS2Analysis.json
- 
-Thanks for the factoring. 
- 
---bob
- 
-From: brucep.mobile@gmail.com <brucep.mobile@gmail.com>
-Date: Tuesday, August 3, 2021 at 1:29 PM
-To: Shukla, Maulik <mshukla@anl.gov>
-Cc: Olson, Robert D. <olson@mcs.anl.gov>
-Subject: CLI Additional Services
-Here is the list of services I was asked to implement.
- 
-•	*Comprehensive Genome Analysis
-•	Tree
+•	Comprehensive Genome Analysis - implemented
+•	GeneTree
 •	MSA
-•	Rva Genotyper
-•	*Codon Tree
-•	BLAST
-•	SNP-analysis
-•	FastqUtils
-•	*Metagenomic Read Mapping
+•	RVA Genotyper - not available yet
+•	Codon Tree -implemented
+•	Homology Service - (BLAST)
+•	SNP Analysis - no trace of service
+•	FastqUtils - implemented
+•	Metagenomic Read Mapping - implemented
 •	Genome Comparison
-•	*Taxonomic Classification
-•	RNASeq Analysis
+•	Taxonomic Classification - implemented
+•	RNASeq - implemented
 •	Variation Analysis
-•	Ha Numbering
+•	Ha Numbering - not available yet
 •	Metagenome Binning
-•	Short-seqsearch
+•	Short-seqsearch - not available yet
 •	SARS-2 Genome Assembly and Annotation
- 
-I have parameter definitions for all the services shown in boldface.  The others might be available under a different name, may not yet be a service (BLAST), or may not exist yet.
- 
-We currently have two scripts, and each has its own unique way of processing.  There are common patterns-- file name normalization and upload, multiple FASTQ input sets, output path, and common parameters-- that I have set up library modules to handle.  This is so that I am not copying and pasting code between scripts and then making a dozen modifications to implement one fix.  With only two submission scripts, this was a problem Bob never faced.
- 
-Once this is all done, Taxonomic Classification and Comprehensive Genome Analysis should be very simple tasks.   There are other services that basically take FASTQ input-- RNASeq Analysis and Metagenomic Read Mapping-- but they have slightly different parameter structures, so they will require tweaking.   Once I get all the bold-face stuff done, I will need instructions for how to find the JSON specifications for the other services.  But that is not necessary now.
- 
- 
- 
+

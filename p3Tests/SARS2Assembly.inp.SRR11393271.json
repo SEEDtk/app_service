@@ -1,0 +1,16 @@
+{
+  "taxonomy_id": 2697049,
+  "domain": "Viruses",
+  "input_type": "reads",
+  "single_end_libs": [
+    {
+      "read": "/olson@patricbrc.org/PATRIC-QA/applications/App-ComprehensiveSARS2Analysis/SRR11393271_1.fastq"
+    }
+  ],
+  "recipe": "auto",
+  "output_path": "/olson@patricbrc.org/home/vtest",
+  "output_file": "SRR11393271_1",
+  "keep_intermediates": 0,
+  "scientific_name": "SARS2 test",
+  "code": 1
+}

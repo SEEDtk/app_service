@@ -28,6 +28,9 @@ IDs from the NCBI Sequence Read Archive, interleaved single-end libraries, and s
 the L<Getop::Long/GetOptions> specifications for the four input types as well as their modifiers and provides a method to parse
 the options into a parameter object.
 
+Note that because L<Getopt::Long> suppresses errors, this method collects errors in a queue instead of calling C<die>.
+When L</check_for_reads> or L</store_libs> is called, this queue is interrogated and the C<die> is thrown an that time.
+
 The parameters handled by this object are as follows.
 
 =over 4
@@ -66,6 +69,12 @@ uploaded from the local file system.  This parameter may be specified multiple t
 A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
 multiple times.
 
+=back
+
+The following options are available for assembly mode.
+
+=over 4
+
 =item --platform
 
 The sequencing platform for the subsequent read library or libraries.  Valid values are C<infer>, C<illumina>, C<pacbio>, or <nanopore>.
@@ -89,6 +98,16 @@ Indicates that all subseqyent read libraries have reverse read orientation, with
 
 =back
 
+The following options are available in RNA Seq mode.
+
+=over 4
+
+=item --condition
+
+Name of a condition that applies to this library.
+
+=back
+
 =cut
 
 use constant LEGAL_PLATFORMS => { infer => 1, illumina => 1, pacbio => 1, nanopore => 1 };
@@ -107,15 +126,31 @@ Create a new read input specification handler.
 
 L<Bio::KBase::AppService::UploadSpec> object for processing files.
 
+=item options
+
+A hash of options, including zero or more of the following.
+
+=over 8
+
+=item assembling
+
+If TRUE, then it is presumed the reads are being assembled, and additional options are allowed.  The default is FALSE.
+
+=item rnaseq
+
+If TRUE, this it is presumed the reads contain RNA Seq expression data.  The default is FALSE.
+
+=back
+
 =back
 
 =cut
 
 sub new {
-    my ($class, $uploader) = @_;
+    my ($class, $uploader, %options) = @_;
     my $retVal = {
         uploader => $uploader,
-        platform => 'infer',
+        platform => undef,
         read_orientation_outward => 0,
         insert_size_mean => undef,
         insert_size_stdev => undef,
@@ -123,6 +158,11 @@ sub new {
         single_end_libs => [],
         srr_ids => [],
         saved_file => undef,
+        errors => [],
+        conditions => {},
+        curr_condition => undef,
+        assembling => ($options{assembling} // 0),
+        rnaseq => ($options{rnaseq} // 0)
     };
     bless $retVal, $class;
     return $retVal;
@@ -141,17 +181,24 @@ incorporated in the list.
 
 sub lib_options {
     my ($self) = @_;
-    return ("paired-end-lib|paired-end-libs=s{2}" => sub { $self->_pairedLib($_[1]); },
+    my @parms =  ("paired-end-lib|paired-end-libs=s{2}" => sub { $self->_pairedLib($_[1]); },
             "interleaved-lib|interlaced-lib=s" => sub { $self->_interleavedLib($_[1]); },
             "single-end-lib=s" => sub { $self->_singleLib($_[1]); },
-            "srr-id=s" => sub { $self->_srrDownload($_[1]); },
+            "srr-id=s" => sub { $self->_srrDownload($_[1]); });
+    if ($self->{assembling}) {
+        push @parms,
             "platform=s" => sub { $self->_setPlatform($_[1]); },
             "read-orientation-outward" => sub { $self->{read_orientation_outward} = 1; },
             "read-orientation-inward" => sub { $self->{read_orientation_outward} = 0; },
             "insert-size-mean=i" => sub { $self->{insert_size_mean} = $_[1]; },
-            "insert-size-stdev=i" => sub { $self->{insert_size_stdev} = $_[1]; },
-            $self->{uploader}->file_options(),
-        );
+            "insert-size-stdev=i" => sub { $self->{insert_size_stdev} = $_[1]; };
+         $self->{platform} = 'infer';
+    }
+    if ($self->{rnaseq}) {
+        push @parms,
+            "condition=s" => sub { $self->_setCondition($_[1]); };
+    }
+    return @parms;
 }
 
 =head3 _pairedLib
@@ -174,30 +221,35 @@ Name of the file to put in a paired-end library.
 
 sub _pairedLib {
     my ($self, $fileName) = @_;
-    # Verify that the user has not put an option in the file list.
-    my $saved = $self->{saved_file};
-    if ($saved && substr($fileName, 0, 1) eq '-') {
-        die "paired_end_libs requires two parameters, but $fileName found.";
-    }
-    # Get the uploader and convert the file name.
-    my $uploader = $self->{uploader};
-    my $wsFile = $uploader->fix_file_name($fileName, 'reads');
-    if (! $saved) {
-        # Here we have the first file of a pair.
-        $self->{saved_file} = $wsFile;
-    } else {
-        # Here it is the second file. Create the libraries spec.
-        my $lib = {
-            read1 => $saved,
-            read2 => $wsFile,
-            interleaved => 0
-        };
-        # Add the optional parameters.
-        $self->_processTweaks ($lib);
-        # Queue the library pair.
-        push @{$self->{paired_end_libs}}, $lib;
-        # Denote we are starting over.
-        $self->{saved_file} = undef;
+    eval {
+        # Verify that the user has not put an option in the file list.
+        my $saved = $self->{saved_file};
+        if ($saved && substr($fileName, 0, 1) eq '-') {
+            die "paired_end_libs requires two parameters, but $fileName found.";
+        }
+        # Get the uploader and convert the file name.
+        my $uploader = $self->{uploader};
+        my $wsFile = $uploader->fix_file_name($fileName, 'reads');
+        if (! $saved) {
+            # Here we have the first file of a pair.
+            $self->{saved_file} = $wsFile;
+        } else {
+            # Here it is the second file. Create the libraries spec.
+            my $lib = {
+                read1 => $saved,
+                read2 => $wsFile,
+                interleaved => 0
+            };
+            # Add the optional parameters.
+            $self->_processTweaks($lib);
+            # Queue the library pair.
+            push @{$self->{paired_end_libs}}, $lib;
+            # Denote we are starting over.
+            $self->{saved_file} = undef;
+        }
+    };
+    if ($@) {
+        push @{$self->{errors}}, $@;
     }
 }
 
@@ -219,16 +271,21 @@ Name of the file containing interleaved pair-end reads.
 
 sub _interleavedLib {
     my ($self, $fileName) = @_;
-    # Get the uploader and convert the file name.
-    my $uploader = $self->{uploader};
-    my $wsFile = $uploader->fix_file_name($fileName, 'reads');
-    # Create the library specification.
-    my $lib = {
-        read1 => $wsFile,
-        interleaved => 1
+    eval {
+        # Get the uploader and convert the file name.
+        my $uploader = $self->{uploader};
+        my $wsFile = $uploader->fix_file_name($fileName, 'reads');
+        # Create the library specification.
+        my $lib = {
+            read1 => $wsFile,
+            interleaved => 1
+        };
+        # Add it to the paired-end queue.
+        push @{$self->{paired_end_libs}}, $lib;
     };
-    # Add it to the paired-end queue.
-    push @{$self->{paired_end_libs}}, $lib;
+    if ($@) {
+        push @{$self->{errors}}, $@;
+    }
 }
 
 =head3 _singleLib
@@ -249,16 +306,20 @@ Name of the file containing interleaved pair-end reads.
 
 sub _singleLib {
     my ($self, $fileName) = @_;
-    # Get the uploader and convert the file name.
-    my $uploader = $self->{uploader};
-    my $wsFile = $uploader->fix_file_name($fileName, 'reads');
-    # Create the library specification.  Note that the platform is the only tweak allowed.
-    my $lib = {
-        read => $wsFile,
-        platform => $self->{platform}
+    eval {
+        # Get the uploader and convert the file name.
+        my $uploader = $self->{uploader};
+        my $wsFile = $uploader->fix_file_name($fileName, 'reads');
+        # Create the library specification.  Note that the platform is the only tweak allowed.
+        my $lib = {
+            read => $wsFile
+        };
+        # Add it to the single-end queue.
+        push @{$self->{single_end_libs}}, $lib;
     };
-    # Add it to the single-end queue.
-    push @{$self->{single_end_libs}}, $lib;
+    if ($@) {
+        push @{$self->{errors}}, $@;
+    }
 }
 
 =head3 _srrDownload
@@ -302,10 +363,36 @@ Platform name to use.
 sub _setPlatform {
     my ($self, $platform) = @_;
     if (! LEGAL_PLATFORMS->{$platform}) {
-        die "Invalid platform name \"$platform\" specified.";
+        push @{$self->{errors}}, "Invalid platform name \"$platform\" specified.";
     } else {
         $self->{platform} = $platform;
     }
+}
+
+=head3 _setCondition
+
+    $reader->_setCondition($condition);
+
+Specify the condition for subsequent read libraries.  The condition can be any string.
+
+=over 4
+
+=item condition
+
+Condition name to use.
+
+=back
+
+=cut
+
+sub _setCondition {
+    my ($self, $condition) = @_;
+    my $conditionH = $self->{conditions};
+    if (! $conditionH->{$condition}) {
+        # Here we need to add this condition.
+        $conditionH->{$condition} = scalar keys %$conditionH;
+    }
+    $self->{condition} = $conditionH->{$condition};
 }
 
 =head2 Query Methods
@@ -320,6 +407,7 @@ Return TRUE if there are read files specified, else FALSE.
 
 sub check_for_reads {
     my ($self) = @_;
+    $self->_errCheck();
     my $retVal;
     if (scalar @{$self->{paired_end_libs}}) {
         $retVal = 1;
@@ -349,12 +437,38 @@ Parameter structure into which the read libraries specified on the command line 
 
 sub store_libs {
     my ($self, $params) = @_;
+    $self->_errCheck();
     $params->{paired_end_libs} = $self->{paired_end_libs};
     $params->{single_end_libs} = $self->{single_end_libs};
     $params->{srr_ids} = $self->{srr_ids};
+    if ($self->{rnaseq}) {
+        my $conditionH = $self->{conditions};
+        my @conditions;
+        for my $cond (keys %$conditionH) {
+            $conditions[$conditionH->{$cond}] = $cond;
+        }
+        $params->{experimental_conditions} = \@conditions;
+    }
 }
 
 =head2 Internal Utilities
+
+=head3 _errCheck
+
+    $reader->_errCheck();
+
+This method will throw an error if one of the read libraries is invalid.
+
+=cut
+
+sub _errCheck {
+    my ($self) = @_;
+    my $errors = $self->{errors};
+    if (@$errors) {
+        print join("\n", @$errors) . "\n";
+        die "Error preparing read libraries.";
+    }
+}
 
 =head3 _processTweaks
 
@@ -372,9 +486,11 @@ Hash reference containing the current library specification.  Optional parameter
 
 sub _processTweaks {
     my ($self, $lib) = @_;
-    for my $parm (qw(insert_size_mean insert_size_stdev platform read_orientation_outward)) {
-        if ( defined $self->{$parm} ) {
-            $lib->{$parm} = $self->{$parm};
+    if (! $self->{assembling}) {
+        for my $parm (qw(insert_size_mean insert_size_stdev condition platform read_orientation_outward)) {
+            if ( defined $self->{$parm} ) {
+                $lib->{$parm} = $self->{$parm};
+            }
         }
     }
 }

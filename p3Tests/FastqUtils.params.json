@@ -1,0 +1,16 @@
+{
+   "output_file" : "fastqc test",
+   "output_path" : "/mshukla@patricbrc.org/home/Scheduler2",
+   "recipe" : [
+      "FastQC",
+      "Trim",
+      "FastQC",
+      "Align"
+   ],
+   "single_end_libs" : [
+      {
+         "read" : "/PATRIC@patricbrc.org/PATRIC Workshop/Assembly/Older data/SRR4240359.fastq"
+      }
+   ],
+   "reference_genome_id" : "9.164"
+}

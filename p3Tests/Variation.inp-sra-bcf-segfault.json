@@ -1,0 +1,10 @@
+{
+    "output_path": "/jsporter@patricbrc.org/home/Test_Files",
+    "output_file": "var_sra_test1",
+    "reference_genome_id": "1035377.4",
+    "mapper": "Bowtie2",
+    "caller": "FreeBayes",
+    "srr_ids": [
+        "SRR10961160"
+    ]
+}

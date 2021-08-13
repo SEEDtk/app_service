@@ -1,0 +1,10 @@
+{
+   "srr_ids": ["SRR8580939"],
+   "genome_group" : "TEST",
+   "assembler" : "auto",
+   "perform_bacterial_annotation" : true,
+   "perform_viral_annotation" : true,
+   "output_path" : "/olson@patricbrc.org/home/test",
+   "output_file" : "test"
+}
+

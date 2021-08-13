@@ -1,0 +1,7 @@
+{
+    "mfile": "",
+    "output_file": "E coli differential expression",
+    "ustring": "{\"source_id_type\":\"refseq_locus_tag\",\"data_type\":\"transcriptomics\",\"experiment_title\":\"E coli differential expression\",\"experiment_description\":\"E coli differential expression\",\"organism\":\"Escherichia coli str. K-12 substr. MG1655\",\"genome_id\":\"511145.12\",\"pmid\":\"\",\"xsetup\":\"gene_list\",\"host\":false}",
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-DifferentialExpression",
+    "xfile": "/olson@patricbrc.org/PATRIC-QA/applications/App-DifferentialExpression/Ecoli_Gene_Matrix.txt"
+}

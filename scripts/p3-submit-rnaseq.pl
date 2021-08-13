@@ -1,14 +1,13 @@
-=head1 Submit a Metagenomic Read Mapping Job
+=head1 Submit an RNA Seq Processing Job
 
-This script submits a Metagenomic Read-Mapping job to PATRIC.  It takes input from read libraries and uses either the CARD or VFDB database
-to identify the nature of the incoming reads.
+This script submits an RNA Seq processing job to PATRIC.  It allows input from all supported read libraries, and specifies
+the tool to use as well as any conditions or contrasts that we want to appear on the output.
 
 =head1 Usage Synopsis
 
-    p3-submit-metagenomic-read-mapping [options] output-path output-name
+    p3-submit-fastqutils [options] output-path output-name
 
-Start a metagenomic read mapping, producing output in the specified workspace path, using the specified name for the base filename
-of the output files.
+Start a FASTQ processing job specified workspace path, using the specified name for the output job folder.
 
 =head2 Command-Line Options
 
@@ -36,30 +35,25 @@ uploaded from the local file system.  This parameter may be specified multiple t
 A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
 multiple times.
 
-=item --platform
+=item --condition
 
-The sequencing platform for the subsequent read library or libraries.  Valid values are C<infer>, C<illumina>, C<pacbio>, or <nanopore>.
-The default is C<infer>.
+Experimental condition to use for labelling subsequent read libraries on the command line.  Can be any string.
 
-=item --insert-size-mean
+=item --contrast
 
-The average size of an insert in all subsequent read libraries, used for optimization.
+Contrast name to be used for labelling the run.  This parameter can be specified multiple times.
 
-=item --insert-size-stdev
+=item --tuxedo
 
-The standard deviation of the insert sizes in all subsequent read libraries, used for optimization.
+Use the Tuxedo suite of RNA tools. (This is the default.)
 
-=item --read-orientation-inward
+=item --hisat
 
-Indicates that all subsequent read libraries have the standard read orientation, with the paired ends facing inward.  This is the default.
+Use the Host HISAT suite of RNA tools.
 
-=item --read-orientation-outward
+=item --reference-genome-id
 
-Indicates that all subsequent read libraries have reverse read orientation, with the paired ends facing outward.
-
-=item --gene-set-name
-
-The gene set name-- C<CARD> or C<VFDB>.  The default is C<CARD>.
+If specified, the ID of a genome in PATRIC to which the reads will be aligned.  This operation is always performed last.
 
 =item --workspace-path-prefix
 
@@ -93,8 +87,7 @@ use Data::Dumper;
 use Bio::KBase::AppService::CommonSpec;
 use Bio::KBase::AppService::ReadSpec;
 use Bio::KBase::AppService::UploadSpec;
-
-use constant GENE_SET_NAMES => { 'VFDB' => 1, 'CARD' => 1 };
+use Bio::KBase::AppService::GenomeIdSpec;
 
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
@@ -104,18 +97,24 @@ if (! $p3token->token()) {
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();
 my $uploader = Bio::KBase::AppService::UploadSpec->new($p3token);
-my $reader = Bio::KBase::AppService::ReadSpec->new($uploader);
+my $reader = Bio::KBase::AppService::ReadSpec->new($uploader, rnaseq => 1);
 
 # Get the application service helper.
 my $app_service = Bio::KBase::AppService::Client->new();
 
 # Declare the option variables and their defaults.
-my $minContigLength = 300;
-my $minContigCov = 5;
-my $geneSetName = 'CARD';
+my $rnaRocket = 0;		# This is the internal name for the Tuxedo option
+my $hisat = 0;
+my $fastqc = 0;
+my $align = 0;
+my $referenceGenomeId;
+my @contrasts;
 # Now we parse the options.
 GetOptions($commoner->options(), $reader->lib_options(),
-        'gene-set-name=s' => \$geneSetName,
+        'tuxedo' => \$rnaRocket,
+        'hisat' => \$hisat,
+        'contrast=s' => \@contrasts,
+        'reference-genome-id|ref|genome=s' => \$referenceGenomeId
         );
 # Verify the argument count.
 if (! $ARGV[0] || ! $ARGV[1]) {
@@ -123,20 +122,31 @@ if (! $ARGV[0] || ! $ARGV[1]) {
 } elsif (scalar @ARGV > 2) {
     die "Too many parameters-- only output path and output name should be specified.";
 }
-if (! $reader->check_for_reads()) {
-    die "Must specify some type of FASTQ input.";
-}
 # Handle the output path and name.
 my ($outputPath, $outputFile) = $uploader->output_spec(@ARGV);
+# We will compute the recipe here.
+if ($rnaRocket && $hisat) {
+    die "Only one tool suite can be specified.";
+}
+my $recipe = ($hisat ? 'Host' : 'RNA-Rocket');
+if (! $referenceGenomeId) {
+    die "Reference genome ID is required.";
+} elsif (! Bio::KBase::AppService::GenomeIdSpec::validate_genomes($referenceGenomeId)) {
+    die "Invalid reference genome ID.";
+}
 # Build the parameter structure.
 my $params = {
-    gene_set_type => 'predefined_list',
-    gene_set_fasta => '',
-    gene_set_name => $geneSetName,
+    contrasts => \@contrasts,
+    recipe => $recipe,
+    reference_genome_id => $referenceGenomeId,
     output_path => $outputPath,
-    output_file => $outputFile,
+    output_file => $outputFile
 };
-# Add the read input specifier.
+if (! $reader->check_for_reads()) {
+    die "You must specify a FASTQ source.";
+}
+# Add the input FASTQ files.
 $reader->store_libs($params);
+
 # Submit the job.
-$commoner->submit($app_service, $uploader, $params, MetagenomicReadMapping => 'read-mapping');
+$commoner->submit($app_service, $uploader, $params, RNASeq => 'RNASeq utilities');

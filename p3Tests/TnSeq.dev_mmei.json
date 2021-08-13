@@ -1,0 +1,27 @@
+{
+    "id": "/olson@patricbrc.org/PATRIC-QA/applications/App-TnSeq/MmeI/ERR1777068.5k.fastq",
+    "output_path": "/olson@patricbrc.org/PATRIC-QA/applications/App-TnSeq/MmeI",
+    "output_file": "mme1_dev",
+    "recipe": "gumbel",
+    "protocol": "mme1",
+    "primer": "ATCACG",
+    "reference_genome_id": "197.5220",
+    "experimental_conditions": [
+        "control"
+    ],
+    "read_files": {
+            "control": {
+	                "replicates": [
+	                    {
+			                        "read": "/olson@patricbrc.org/PATRIC-QA/applications/App-TnSeq/MmeI/ERR1777068.5k.fastq"
+			                    }
+	                ],
+	                "library": "control"
+	            }
+	        },
+        "contrasts": [
+		        [
+			            "control"
+			        ]
+				    ]
+}
