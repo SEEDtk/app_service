@@ -11,11 +11,32 @@ Start a FASTQ processing job specified workspace path, using the specified name 
 
 =head2 Command-Line Options
 
+The following options are used to assist in the specification of files.  Files specified in the options that are in the workspace
+should have a C<>ws:> prefix.  All others are assumed to be local.
+
+=over 4
+
+=item --workspace-path-prefix
+
+Base workspace directory for relative workspace paths.
+
+=item --workspace-upload-path
+
+Name of workspace directory to which local files should be uplaoded.
+
+=item --overwrite
+
+If a file to be uploaded already exists and this parameter is specified, it will be overwritten; otherwise, the script will error out.
+
+=back
+
+The following options specify the reads from which the genome should be assembled.
+
 =over 4
 
 =item --paired-end-lib
 
-Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-libs left.fa right.fa>.  The
+Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-lib left.fa right.fa>.  The
 libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
@@ -35,9 +56,26 @@ uploaded from the local file system.  This parameter may be specified multiple t
 A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
 multiple times.
 
+=back
+
+hese options modify the way reads are labelled during processing, so they must precede the library specifications to which
+they apply.  So, for example
+
+    --condition low_temp --srr-id SRR12345 --condition high_temp --srr-id SRR67890
+
+Means that sample SRR12345 was tested in the C<low_temp> condition and SRR67890 was tested in the C<high_temp> condition.
+
+=over 4
+
 =item --condition
 
-Experimental condition to use for labelling subsequent read libraries on the command line.  Can be any string.
+Name of a condition that applies to this library.
+
+=back
+
+These options specify what is to be done to the RNA Seq reads.
+
+=over 4
 
 =item --contrast
 
@@ -55,17 +93,11 @@ Use the Host HISAT suite of RNA tools.
 
 If specified, the ID of a genome in PATRIC to which the reads will be aligned.  This operation is always performed last.
 
-=item --workspace-path-prefix
+=back
 
-Base workspace directory for relative workspace paths.
+These options are provided for user assistance and debugging.
 
-=item --workspace-upload-path
-
-Name of workspace directory to which local files should be uplaoded.
-
-=item --overwrite
-
-If a file to be uploaded already exists and this parameter is specified, it will be overwritten; otherwise, the script will error out.
+=over 4
 
 =item --help
 

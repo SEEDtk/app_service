@@ -1,6 +1,6 @@
 
 •	Comprehensive Genome Analysis - implemented as p3-submit-CGA
-•	Codon Tree -implemented as p3-submit-codon-tree
+•	Codon Tree - implemented as p3-submit-codon-tree
 •	Metagenomic Read Mapping - implemented as p3-submit-metagenomic-read-mapping
 •	Taxonomic Classification - implemented as p3-submit-taxonomic-classification
 •	RNASeq - implemented as p3-submit-rnaseq

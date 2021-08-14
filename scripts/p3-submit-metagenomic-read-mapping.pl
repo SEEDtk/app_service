@@ -16,7 +16,7 @@ of the output files.
 
 =item --paired-end-lib
 
-Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-libs left.fa right.fa>.  The
+Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-lib left.fa right.fa>.  The
 libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 

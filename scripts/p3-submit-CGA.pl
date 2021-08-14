@@ -12,11 +12,32 @@ of the output files.
 
 =head2 Command-Line Options
 
+The following options are used to assist in the specification of files.  Files specified in the options that are in the workspace
+should have a C<>ws:> prefix.  All others are assumed to be local.
+
+=over 4
+
+=item --workspace-path-prefix
+
+Base workspace directory for relative workspace paths.
+
+=item --workspace-upload-path
+
+Name of workspace directory to which local files should be uplaoded.
+
+=item --overwrite
+
+If a file to be uploaded already exists and this parameter is specified, it will be overwritten; otherwise, the script will error out.
+
+=back
+
+The following options specify the reads from which the genome should be assembled.
+
 =over 4
 
 =item --paired-end-lib
 
-Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-libs left.fa right.fa>.  The
+Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-lib left.fa right.fa>.  The
 libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
@@ -35,6 +56,18 @@ uploaded from the local file system.  This parameter may be specified multiple t
 
 A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
 multiple times.
+
+=back
+
+These options modify the way reads are processed during assembly, so they should precede any library specifications to which they apply.
+For example,
+
+    --platform illumina --paired-end-lib S1.fq S2.fq --platform pacbio --srr-id ERR12345
+
+means that the local files C<S1.fq> and C<S2.fq> are from the illumina platform, but the NCBI sample C<ERR12345> comes from the
+pacbio platform.
+
+=over 4
 
 =item --platform
 
@@ -55,7 +88,13 @@ Indicates that all subsequent read libraries have the standard read orientation,
 
 =item --read-orientation-outward
 
-Indicates that all subsequent read libraries have reverse read orientation, with the paired ends facing outward.
+Indicates that all subseqyent read libraries have reverse read orientation, with the paired ends facing outward.
+
+=back
+
+The following options modify the entire assembly process.
+
+=over 4
 
 =item --min-contig-length
 
@@ -81,10 +120,21 @@ Number of racon iterations (default <2>).
 
 Assembly recipe (C<auto>, C<full_spades>, C<fast>, C<miseq>, C<smart>, or C<kiki>; default C<auto>).
 
+=back
+
+The following option specifies the contigs for the genome.  If this is specified, the above options relating to reads
+should not be used.
+
 =item --contigs
 
 Input FASTA file of assembled contigs.  (If specified, all options relating to assembly will be ignored.  This is mutually exclusive with
 C<--paired-end-libs>, C<--single-end-libs>, C<srr-ids>, and C<interleaved-libs>)
+
+=back
+
+The following options describe the genome for the annotation process.
+
+=over 4
 
 =item --scientific-name
 
@@ -94,7 +144,7 @@ Scientific name of genome to be annotated.
 
 Label to add to end of scientific name to form genome name.
 
-=item --taxonomy_id
+=item --taxonomy-id
 
 NCBI taxonomy identifier for the genome.
 
@@ -106,17 +156,11 @@ Genetic code (C<4> or C<11>, default C<11>).
 
 Domain of the submitted genome (C<Archaea> or C<Bacteria>, default C<Bacteria>).
 
-=item --workspace-path-prefix
+=back
 
-Base workspace directory for relative workspace paths.
+The following options are provided for user assistance and debugging.
 
-=item --workspace-upload-path
-
-Name of workspace directory to which local files should be uplaoded.
-
-=item --overwrite
-
-If a file to be uploaded already exists and this parameter is specified, it will be overwritten; otherwise, the script will error out.
+=over 4
 
 =item --help
 

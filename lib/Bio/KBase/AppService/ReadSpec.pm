@@ -49,7 +49,7 @@ If a file to be uploaded already exists and this parameter is specified, it will
 
 =item --paired-end-lib
 
-Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-libs left.fa right.fa>.  The
+Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-lib left.fa right.fa>.  The
 libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
@@ -72,6 +72,14 @@ multiple times.
 =back
 
 The following options are available for assembly mode.
+
+These options modify the way reads are processed during assembly, so they should precede any library specifications to which they apply.
+For example,
+
+    --platform illumina --paired-end-lib S1.fq S2.fq --platform pacbio --srr-id ERR12345
+
+means that the local files C<S1.fq> and C<S2.fq> are from the illumina platform, but the NCBI sample C<ERR12345> comes from the
+pacbio platform.
 
 =over 4
 
@@ -99,6 +107,13 @@ Indicates that all subseqyent read libraries have reverse read orientation, with
 =back
 
 The following options are available in RNA Seq mode.
+
+These options modify the way reads are labelled during processing, so they must precede the library specifications to which
+they apply.  So, for example
+
+    --condition low_temp --srr-id SRR12345 --condition high_temp --srr-id SRR67890
+
+Means that sample SRR12345 was tested in the C<low_temp> condition and SRR67890 was tested in the C<high_temp> condition.
 
 =over 4
 

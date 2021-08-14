@@ -16,7 +16,7 @@ of the output files.
 
 =item --workspace-path-prefix
 
-Prefix to be put in front of the output path.
+Prefix to be put in front of the output path.  This is optional, and is provided for uniformity with other commands.
 
 =item --genome-ids
 
