@@ -1,19 +1,19 @@
 
-•	Comprehensive Genome Analysis - implemented
+•	Comprehensive Genome Analysis - implemented as p3-submit-CGA
+•	Codon Tree -implemented as p3-submit-codon-tree
+•	Metagenomic Read Mapping - implemented as p3-submit-metagenomic-read-mapping
+•	Taxonomic Classification - implemented as p3-submit-taxonomic-classification
+•	RNASeq - implemented as p3-submit-rnaseq
+•	FastqUtils - implemented as p3-submit-fastqutils
+•	Genome Comparison
+•	Variation Analysis
+•	Metagenome Binning
+•	SARS-2 Genome Assembly and Annotation
 •	GeneTree
 •	MSA
-•	RVA Genotyper - not available yet
-•	Codon Tree -implemented
 •	Homology Service - (BLAST)
-•	SNP Analysis - no trace of service
-•	FastqUtils - implemented
-•	Metagenomic Read Mapping - implemented
-•	Genome Comparison
-•	Taxonomic Classification - implemented
-•	RNASeq - implemented
-•	Variation Analysis
+•	RVA Genotyper - not available yet
 •	Ha Numbering - not available yet
-•	Metagenome Binning
 •	Short-seqsearch - not available yet
-•	SARS-2 Genome Assembly and Annotation
+•	SNP Analysis - no trace of service
 
