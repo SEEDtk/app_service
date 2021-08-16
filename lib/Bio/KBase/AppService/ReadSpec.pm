@@ -76,10 +76,11 @@ The following options are available for assembly mode.
 These options modify the way reads are processed during assembly, so they should precede any library specifications to which they apply.
 For example,
 
-    --platform illumina --paired-end-lib S1.fq S2.fq --platform pacbio --srr-id ERR12345
+    --platform illumina --paired-end-lib S1.fq S2.fq --platform pacbio --single-end-lib ERR12345.fq  --srr-id SRR54321
 
-means that the local files C<S1.fq> and C<S2.fq> are from the illumina platform, but the NCBI sample C<ERR12345> comes from the
-pacbio platform.
+means that the local files C<S1.fq> and C<S2.fq> are from the illumina platform, but the single-end library C<ERR12345.fq> comes
+from the pacbio platform.  These options B<only> apply to FASTQ libraries, and not to libraries accessed via na NBCI ID.  Thus
+C<SRR54321> above will use the default mode of having its platform inferred from the data.
 
 =over 4
 

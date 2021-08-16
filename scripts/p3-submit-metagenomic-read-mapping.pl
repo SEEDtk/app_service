@@ -36,27 +36,6 @@ uploaded from the local file system.  This parameter may be specified multiple t
 A run ID from the NCBI sequence read archive.  The run will be downloaded from the NCBI for processing.  This parameter may be specified
 multiple times.
 
-=item --platform
-
-The sequencing platform for the subsequent read library or libraries.  Valid values are C<infer>, C<illumina>, C<pacbio>, or <nanopore>.
-The default is C<infer>.
-
-=item --insert-size-mean
-
-The average size of an insert in all subsequent read libraries, used for optimization.
-
-=item --insert-size-stdev
-
-The standard deviation of the insert sizes in all subsequent read libraries, used for optimization.
-
-=item --read-orientation-inward
-
-Indicates that all subsequent read libraries have the standard read orientation, with the paired ends facing inward.  This is the default.
-
-=item --read-orientation-outward
-
-Indicates that all subsequent read libraries have reverse read orientation, with the paired ends facing outward.
-
 =item --gene-set-name
 
 The gene set name-- C<CARD> or C<VFDB>.  The default is C<CARD>.

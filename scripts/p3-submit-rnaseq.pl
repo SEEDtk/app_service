@@ -5,9 +5,10 @@ the tool to use as well as any conditions or contrasts that we want to appear on
 
 =head1 Usage Synopsis
 
-    p3-submit-fastqutils [options] output-path output-name
+    p3-submit-rnaseq [options] output-path output-name
 
-Start a FASTQ processing job specified workspace path, using the specified name for the output job folder.
+Start an RNA Seq expression data processing job with output to the specified workspace path, using the specified name for the
+job folder.
 
 =head2 Command-Line Options
 
