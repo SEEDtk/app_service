@@ -1,14 +1,14 @@
-=head1 Submit a Comprehensive Genome Analysis Job
+=head1 SARS-COV-2 Genome Assembly and Annotation
 
-This script submits a CGA job to PATRIC.  It allows input from either read libraries or a FASTA file, annotates the sequences
-(after any necessary assembly), and produces a page of useful reports and graphs.
+This script submits a SARS-COV-2 Assembly and Annotation job to PATRIC.  It takes input from read libraries and uses
+VIGOR to annotate the assembled contigs.
 
 =head1 Usage Synopsis
 
-    p3-submit-CGA [options] output-path output-name
+    p3-submit-sars2-assembly [options] output-path output-name
 
-Start a comprehensive genome analysis, producing output in the specified workspace path, using the specified name for the base filename
-of the output files.
+Start a SARS-COV-2 assembly and annotation run, producing output in the specified workspace path, using the specified
+folder for the output files.
 
 =head2 Command-Line Options
 
@@ -31,7 +31,7 @@ If a file to be uploaded already exists and this parameter is specified, it will
 
 =back
 
-The following options specify the reads from which the genome should be assembled.
+The following options specify the reads to be classified.
 
 =over 4
 
@@ -93,73 +93,28 @@ Indicates that all subseqyent read libraries have reverse read orientation, with
 
 =back
 
-The following options modify the entire assembly process.
-
-=over 4
-
-=item --min-contig-length
-
-Minimal output contig length (default C<300>).
-
-=item --min-contig-cov
-
-Minimal output contig coverage (Default C<5>).
-
-=item --trim
-
-If specified, the reads should be trimmed before assembly.
-
-=item --pilon-iter
-
-Number of pilon iterations (default C<2>).
-
-=item --racon-iter
-
-Number of racon iterations (default <2>).
+The following options modify the annotation process.
 
 =item --recipe
 
-Assembly recipe (C<auto>, C<full_spades>, C<fast>, C<miseq>, C<smart>, or C<kiki>; default C<auto>).
+The assembly strategy to use-- C<auto>, C<onecodex>, C<cdc-illumina>, C<cdc-nanopore>, or C<artic-nanopore>.  The
+default is C<auto>.
 
-=back
+=item --taxonomy-name
 
-The following option specifies the contigs for the genome.  If this is specified, the above options relating to reads
-should not be used.
-
-=item --contigs
-
-Input FASTA file of assembled contigs.  (If specified, all options relating to assembly will be ignored.  This is mutually exclusive with
-C<--paired-end-libs>, C<--single-end-libs>, C<srr-ids>, and C<interleaved-libs>)
-
-=back
-
-The following options describe the genome for the annotation process.
-
-=over 4
-
-=item --scientific-name
-
-Scientific name of genome to be annotated.
-
-=item --label
-
-Label to add to end of scientific name to form genome name.
+The taxonomic name to use-- the default is computed from the taxonomy ID.
 
 =item --taxonomy-id
 
-NCBI taxonomy identifier for the genome.
+The taxonomic ID to use-- the default is C<2697049>.
 
-=item --code
+=item label
 
-Genetic code (C<4> or C<11>, default C<11>).
-
-=item --domain
-
-Domain of the submitted genome (C<Archaea> or C<Bacteria>, default C<Bacteria>).
+The user label to suffix to the taxonomy name to form the organism scientific name.  The default is none.
 
 =back
 
-The following options are provided for user assistance and debugging.
+These options are provided for user assistance and debugging.
 
 =over 4
 
@@ -185,9 +140,7 @@ use Bio::KBase::AppService::ReadSpec;
 use Bio::KBase::AppService::UploadSpec;
 use Bio::KBase::AppService::GenomeIdSpec;
 
-use constant VALID_RECIPES => { auto => 1,  full_spades => 1, fast => 1, miseq => 1, smart => 1, kiki => 1 };
-
-use constant VALID_DOMAINS => { A => 'Archaea', Archaea => 'Archaea', B => 'Bacteria', Bacteria => 'Bacteria'};
+use constant RECIPES => { auto => 1, onecodex => 1, 'cdc-illumina' => 1, 'cdc-nanopore' => 1, 'artic-nanopore' => 1 };
 
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
@@ -203,32 +156,16 @@ my $reader = Bio::KBase::AppService::ReadSpec->new($uploader, assembling => 1);
 my $app_service = Bio::KBase::AppService::Client->new();
 
 # Declare the option variables and their defaults.
-my $minContigLength = 300;
-my $minContigCov = 5;
-my $trim = 0;
-my $taxonomyId;
-my $scientificName;
-my $raconIter = 2;
-my $pilonIter = 2;
-my $recipe = "auto";
-my $contigs;
-my $code = 11;
-my $domain = "Bacteria";
-my $label;
+my $taxonomyId = 2697094;
+my $taxonomyName;
+my $recipe = 'auto';
+my $label = '';
 # Now we parse the options.
 GetOptions($commoner->options(), $reader->lib_options(),
-        'min-contig-length=i' => \$minContigLength,
-        'min-contig-cov=f' => \$minContigCov,
-        'trim' => \$trim,
-        'taxonomy-id|tax-id=i' => \$taxonomyId,
-        'scientific-name|name' => \$scientificName,
-        'racon-iter|racon=i' => \$raconIter,
-        'pilon-iter|pilon=i' => \$pilonIter,
+        'taxonomy-id=i' => \$taxonomyId,
+        'taxonomy-name=s' => \$taxonomyName,
         'recipe=s' => \$recipe,
-        'contigs=s' => \$contigs,
-        'code|gc=i' => \$code,
-        'domain=s' => \$domain,
-        'label=s' => \$label
+        'label=s' => $label
         );
 # Verify the argument count.
 if (! $ARGV[0] || ! $ARGV[1]) {
@@ -236,52 +173,34 @@ if (! $ARGV[0] || ! $ARGV[1]) {
 } elsif (scalar @ARGV > 2) {
     die "Too many parameters-- only output path and output name should be specified.";
 }
-# Insure we are compatible with the input type.
-my $inputType = "reads";
-if ($contigs) {
-    $inputType = "contigs";
-    if ($reader->check_for_reads()) {
-        die "Cannot specify both contigs and FASTQ input.";
-    }
-} elsif (! $reader->check_for_reads()) {
-    die "Must specify either contigs or FASTQ input.";
+# Insure we have reads.
+if (! $reader->check_for_reads()) {
+    die "Must specify some type of FASTQ input.";
+}
+# Validate the recipe.
+if (! RECIPES->{$recipe}) {
+    die "Invalid recipe specified."
+}
+# Compute the scientific name.
+my $scientificName = Bio::KBase::AppService::GenomeIdSpec::process_taxid($taxonomyId, $taxonomyName);
+if ($label) {
+    $scientificName .= ' ' . $label;
 }
 # Handle the output path and name.
 my ($outputPath, $outputFile) = $uploader->output_spec(@ARGV);
-# Verify the recipe.
-if (! VALID_RECIPES->{$recipe}) {
-    die "Invalid assembly recipe specified.";
-}
-# Verify the domain.
-my $realDomain = VALID_DOMAINS->{$domain};
-if (! $realDomain) {
-    die "Invalid domain $domain.";
-}
-# Insure we have a taxonomy ID and a scientific name.
-$scientificName = Bio::KBase::AppService::GenomeIdSpec::process_taxid($taxonomyId, $scientificName);
 # Build the parameter structure.
 my $params = {
-    input_type => $inputType,
-    min_contig_length => $minContigLength,
-    min_contig_cov => $minContigCov,
-    trim => $trim,
-    taxonomy_id => $taxonomyId,
-    racon_iter => $raconIter,
-    pilon_iter => $pilonIter,
+    domain => 'Viruses',
+    input_type => 'reads',
     recipe => $recipe,
-    code => $code,
-    domain => $domain,
+    keep_intermediates => 0,
+    code => 1,
+    taxonomy_id => $taxonomyId,
+    scientific_name => $scientificName,
     output_path => $outputPath,
     output_file => $outputFile,
 };
-# Add the optional parameters.
-if ($contigs) {
-    $params->{contigs} = $uploader->fix_file_name($contigs);
-} else {
-    $reader->store_libs($params);
-}
-if ($scientificName) {
-    $params->{scientific_name} = $scientificName;
-}
+# Store the read libraries.
+$reader->store_libs($params);
 # Submit the job.
-$commoner->submit($app_service, $uploader, $params, ComprehensiveGenomeAnalysis => 'analysis');
+$commoner->submit($app_service, $uploader, $params, Sars2Assembly => 'SARS-COV-2 assembly');

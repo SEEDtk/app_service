@@ -1,15 +1,15 @@
 
-•	Comprehensive Genome Analysis - implemented as p3-submit-CGA
+•	Comprehensive Genome Analysis - implemented as p3-submit-CGA, dry-tested
+•	Metagenomic Read Mapping - implemented as p3-submit-metagenomic-read-mapping, dry-tested
+•	RNASeq - implemented as p3-submit-rnaseq, dry-tested
+•	FastqUtils - implemented as p3-submit-fastqutils, dry-tested
 •	Codon Tree - implemented as p3-submit-codon-tree
-•	Metagenomic Read Mapping - implemented as p3-submit-metagenomic-read-mapping
 •	Taxonomic Classification - implemented as p3-submit-taxonomic-classification
-•	RNASeq - implemented as p3-submit-rnaseq
-•	FastqUtils - implemented as p3-submit-fastqutils
-•	Genome Comparison
-•	Variation Analysis
-•	Metagenome Binning
-•	SARS-2 Genome Assembly and Annotation
-•	GeneTree
+•	Proteome Comparison - coded as p3-submit-proteome-comparison.pl
+•	Variation Analysis - coded as p3-submit-variation-analysis.pl
+•	Metagenome Binning - coded as p3-submit-metagenome-binning
+•	SARS-2 Genome Assembly and Annotation - coded as p3-submit-sars2-assembly.pl
+•	GeneTree - coded as p3-submit-gene-tree.pl
 •	MSA
 •	Homology Service - (BLAST)
 •	RVA Genotyper - not available yet

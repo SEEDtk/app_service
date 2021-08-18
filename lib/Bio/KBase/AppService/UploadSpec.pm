@@ -330,6 +330,42 @@ sub fix_file_name {
     return $retVal;
 }
 
+=head3 fix_file_list
+
+    my \@wsNames = $uploader->fix_file_list(\@files, $type);
+
+Fix up all of the file names in a list.  Each file will be interrogated to determine if it is a workspace or local,
+and will be normalized to an absolute workspace path.
+
+=over 4
+
+=item files
+
+Reference to a list of file specifications.
+
+=item type
+
+Type of file expected as input.
+
+=item RETURN
+
+Returns a reference to a list of the normalized file names.
+
+=back
+
+=cut
+
+sub fix_file_list {
+    my ($self, $files, $type) = @_;
+    my @retVal;
+    for my $file (@$files) {
+        my $normalized = $self->fix_fileName($file, $type);
+        push @retVal, $normalized;
+    }
+    return \@retVal;
+}
+
+
 =head3 process_uploads
 
     $uploader->process_uploads();
@@ -368,6 +404,19 @@ sub process_uploads {
             print "Done uploading $source to $dest.\n";
         }
     }
+}
+
+=head3 get_prefix
+
+    my $pathPrefix = $uploader->get_prefix();
+
+Return the workspace path prefix.
+
+=cut
+
+sub get_prefix {
+    my ($self) = @_;
+    return $self->{prefix};
 }
 
 1;

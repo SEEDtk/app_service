@@ -25,7 +25,7 @@ package Bio::KBase::AppService::GenomeIdSpec;
 
 =head1 Service Module for Genome ID Lists
 
-This module provides methods for validation PATRIC genome IDs.  It makes sure the genome is found in PATRIC.  This is important
+This module provides methods for validating PATRIC genome IDs.  It makes sure the genome is found in PATRIC.  This is important
 when submitting long-running jobs where an error detected after several hours is really annoying.
 
 =head2 Special Methods
@@ -61,6 +61,8 @@ sub validate_genomes {
             # Skip the header line.
             my $line = <$ih>;
             $retVal = P3Utils::get_col($ih, 0);
+            # In case this is a group downloaded from PATRIC, strip off quotes.
+            map { $_ =~ s/"//g } @$retVal;
             close $ih;
         } else {
             # Split the IDs using a comma.
@@ -94,6 +96,50 @@ sub validate_genomes {
     return $retVal;
 }
 
+=head3 process_taxid
+
+    $scientificName = Bio::KBase::AppService::GenomeIdSpec::process_taxid($taxonomyId, $scientificName);
+
+Compute the scientific name using the taxonomy ID, if necessary.
+
+=over 4
+
+=item taxonomyID
+
+Taxonomy ID specified by the client.
+
+=item scientificName
+
+Scientific name specified by the client.
+
+=item RETURN
+
+Returns the real scientific name to use.
+
+=back
+
+=cut
+
+sub process_taxid {
+    my ($taxonomyId, $scientificName) = @_;
+    my $retVal = $scientificName;
+    if (! $taxonomyId) {
+        die "Taxonomy ID is required.";
+    } elsif (! $scientificName) {
+        # Here we have to compute the scientific name.
+        require P3DataAPI;
+        my $p3 = P3DataAPI->new();
+        my @results = $p3->query("taxonomy",
+                      ["select", "taxon_name"],
+                      ["eq", "taxon_id", $taxonomyId]);
+        if (! @results) {
+            die "Could not find taxonomy ID $taxonomyId in PATRIC.";
+        } else {
+            $retVal = $results[0]->{taxon_name};
+        }
+    }
+    return $retVal;
+}
 
 1;
 

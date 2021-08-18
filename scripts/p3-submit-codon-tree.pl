@@ -21,7 +21,8 @@ Prefix to be put in front of the output path.  This is optional, and is provided
 =item --genome-ids
 
 Main list of genome IDs, comma-delimited.  Alternatively, this can be a local file name.  If specified, the file must be tab-delimited,
-with a header line, containing the genome IDs in the first column.
+with a header line, containing the genome IDs in the first column.  The genome IDs in this file can optionally be enclosed in quotes,
+allowing a text file download of a PATRIC genome group or genome display to be used.
 
 =item --optional-genome-ids
 
