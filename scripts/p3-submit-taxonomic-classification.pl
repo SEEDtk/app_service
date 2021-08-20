@@ -107,6 +107,8 @@ C<--paired-end-libs>, C<--single-end-libs>, C<srr-ids>, and C<interleaved-libs>)
 
 The following options modify the classification process.
 
+=over 4
+
 =item --save-classified
 
 If specified, the classified sequences will be saved in the output folder.
@@ -169,7 +171,7 @@ GetOptions($commoner->options(), $reader->lib_options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 # Insure we are compatible with the input type.
 my $inputType = "reads";

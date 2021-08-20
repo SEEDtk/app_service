@@ -359,7 +359,7 @@ sub fix_file_list {
     my ($self, $files, $type) = @_;
     my @retVal;
     for my $file (@$files) {
-        my $normalized = $self->fix_fileName($file, $type);
+        my $normalized = $self->fix_file_name($file, $type);
         push @retVal, $normalized;
     }
     return \@retVal;

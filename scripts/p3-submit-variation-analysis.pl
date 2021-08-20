@@ -5,7 +5,7 @@ against a reference genome.
 
 =head1 Usage Synopsis
 
-    p3-submit-variation analysis [options] output-path output-name
+    p3-submit-variation-analysis [options] output-path output-name
 
 Start a variation analysis, producing output in the specified workspace path, using the specified name for the base filename
 of the output files.
@@ -61,6 +61,8 @@ multiple times.
 
 The following options modify the analysis process.
 
+=over 4
+
 =item --reference-genome-id
 
 The ID of the genome in PATRIC to be used as a reference.
@@ -99,6 +101,7 @@ use Data::Dumper;
 use Bio::KBase::AppService::CommonSpec;
 use Bio::KBase::AppService::ReadSpec;
 use Bio::KBase::AppService::UploadSpec;
+use Bio::KBase::AppService::GenomeIdSpec;
 
 use constant CALLERS => { 'FreeBayes' => 1, 'SAMtools' => 1};
 use constant MAPPERS => { 'BWA-mem' => 1, 'BWA-mem-strict' => 1, 'Bowtie2' => 1, 'LAST' => 1 };
@@ -130,7 +133,7 @@ GetOptions($commoner->options(), $reader->lib_options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 if (! $reader->check_for_reads()) {
     die "Must specify at least one FASTQ source.";
@@ -139,8 +142,7 @@ if (! $reader->check_for_reads()) {
 if (! $referenceGenomeId) {
     die "Reference genome ID is required.";
 }
-$referenceGenomeId = [$referenceGenomeId];
-my $refId = Bio::KBase::AppService::GenomeIdSpec::validate_genomes($referenceGenomeId);
+my $refId = Bio::KBase::AppService::GenomeIdSpec::validate_genome('--reference-genome-id' => $referenceGenomeId);
 if (! $refId) {
     die "Invalid reference genome ID.";
 }
@@ -148,7 +150,7 @@ if (! $refId) {
 my ($outputPath, $outputFile) = $uploader->output_spec(@ARGV);
 # Build the parameter structure.
 my $params = {
-    reference_genome_id => $refId->[0],
+    reference_genome_id => $refId,
     mapper => $mapper,
     'caller' => $caller,
     output_path => $outputPath,

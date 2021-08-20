@@ -72,6 +72,8 @@ C<--paired-end-libs>, C<--single-end-libs>, C<srr-ids>, and C<interleaved-libs>)
 
 The following options modify the binning process.
 
+=over 4
+
 =item --genome-group
 
 Group name to be assigned to the output genomes (optional).
@@ -132,14 +134,14 @@ my $contigs;
 # Now we parse the options.
 GetOptions($commoner->options(), $reader->lib_options(),
         'contigs=s' => \$contigs,
-        'genome-group' => \$genomeGroup,
+        'genome-group=s' => \$genomeGroup,
         'skip-indexing' => \$skipIndexing
         );
 # Verify the argument count.
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 # Insure we have only one input type.
 if ($contigs) {
@@ -159,7 +161,7 @@ my $params = {
 };
 # Add the optional parameters.
 if ($contigs) {
-    $params->{contigs} = $uploader->fix_file_name($contigs);
+    $params->{contigs} = $uploader->fix_file_name($contigs, 'contigs');
 } else {
     $reader->store_libs($params);
 }

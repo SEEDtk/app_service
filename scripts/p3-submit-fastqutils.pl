@@ -115,7 +115,7 @@ GetOptions($commoner->options(), $reader->lib_options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 # Handle the output path and name.
 my ($outputPath, $outputFile) = $uploader->output_spec(@ARGV);
@@ -125,7 +125,7 @@ if ($pairedFilter) { push @$recipes, 'paired_filter'; }
 if ($trim) { push @$recipes, 'trim'; }
 if ($fastqc) { push @$recipes, 'fastqc' }
 if ($referenceGenomeId) {
-    if (! Bio::KBase::AppService::GenomeIdSpec::validate_genomes($referenceGenomeId)) {
+    if (! Bio::KBase::AppService::GenomeIdSpec::validate_genome('--reference-genome-id' => $referenceGenomeId)) {
         die "Invalid reference genome ID.";
     }
     push @$recipes, 'align';

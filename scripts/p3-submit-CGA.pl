@@ -126,6 +126,8 @@ Assembly recipe (C<auto>, C<full_spades>, C<fast>, C<miseq>, C<smart>, or C<kiki
 The following option specifies the contigs for the genome.  If this is specified, the above options relating to reads
 should not be used.
 
+=over 4
+
 =item --contigs
 
 Input FASTA file of assembled contigs.  (If specified, all options relating to assembly will be ignored.  This is mutually exclusive with
@@ -234,7 +236,7 @@ GetOptions($commoner->options(), $reader->lib_options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 # Insure we are compatible with the input type.
 my $inputType = "reads";

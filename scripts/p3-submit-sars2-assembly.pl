@@ -95,6 +95,8 @@ Indicates that all subseqyent read libraries have reverse read orientation, with
 
 The following options modify the annotation process.
 
+=over 4
+
 =item --recipe
 
 The assembly strategy to use-- C<auto>, C<onecodex>, C<cdc-illumina>, C<cdc-nanopore>, or C<artic-nanopore>.  The
@@ -108,7 +110,7 @@ The taxonomic name to use-- the default is computed from the taxonomy ID.
 
 The taxonomic ID to use-- the default is C<2697049>.
 
-=item label
+=item --label
 
 The user label to suffix to the taxonomy name to form the organism scientific name.  The default is none.
 
@@ -156,22 +158,22 @@ my $reader = Bio::KBase::AppService::ReadSpec->new($uploader, assembling => 1);
 my $app_service = Bio::KBase::AppService::Client->new();
 
 # Declare the option variables and their defaults.
-my $taxonomyId = 2697094;
+my $taxonomyId = 2697049;
 my $taxonomyName;
 my $recipe = 'auto';
-my $label = '';
+my $label;
 # Now we parse the options.
 GetOptions($commoner->options(), $reader->lib_options(),
         'taxonomy-id=i' => \$taxonomyId,
         'taxonomy-name=s' => \$taxonomyName,
         'recipe=s' => \$recipe,
-        'label=s' => $label
+        'label=s' => \$label
         );
 # Verify the argument count.
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 # Insure we have reads.
 if (! $reader->check_for_reads()) {
@@ -203,4 +205,4 @@ my $params = {
 # Store the read libraries.
 $reader->store_libs($params);
 # Submit the job.
-$commoner->submit($app_service, $uploader, $params, Sars2Assembly => 'SARS-COV-2 assembly');
+$commoner->submit($app_service, $uploader, $params, ComprehensiveSARS2Analysis => 'SARS-COV-2 assembly');

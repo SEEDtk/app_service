@@ -296,6 +296,8 @@ sub _interleavedLib {
             read1 => $wsFile,
             interleaved => 1
         };
+        # Add the optional parameters.
+        $self->_processTweaks($lib);
         # Add it to the paired-end queue.
         push @{$self->{paired_end_libs}}, $lib;
     };
@@ -330,6 +332,8 @@ sub _singleLib {
         my $lib = {
             read => $wsFile
         };
+        # Add the optional parameters.
+        $self->_processTweaks($lib);
         # Add it to the single-end queue.
         push @{$self->{single_end_libs}}, $lib;
     };
@@ -356,8 +360,15 @@ SRA accession ID for the sample to download.
 
 sub _srrDownload {
     my ($self, $srr_id) = @_;
-    # Add the SRA accession ID to the download queue.
-    push @{$self->{srr_ids}}, $srr_id;
+    my $srrSpec = $srr_id;
+    if ($self->{rnaseq}) {
+        # Format the SRA accession with a condition.
+        $srrSpec = { srr_accession => $srr_id };
+        if (defined $self->{condition}) {
+            $srrSpec->{condition} = $self->{condition};
+        }
+    }
+    push @{$self->{srr_ids}}, $srrSpec;
 }
 
 =head3 _setPlatform
@@ -456,8 +467,10 @@ sub store_libs {
     $self->_errCheck();
     $params->{paired_end_libs} = $self->{paired_end_libs};
     $params->{single_end_libs} = $self->{single_end_libs};
-    $params->{srr_ids} = $self->{srr_ids};
-    if ($self->{rnaseq}) {
+    if (! $self->{rnaseq}) {
+        $params->{srr_ids} = $self->{srr_ids};
+    } else {
+        $params->{srr_libs} = $self->{srr_ids};
         my $conditionH = $self->{conditions};
         my @conditions;
         for my $cond (keys %$conditionH) {

@@ -119,7 +119,7 @@ GetOptions($commoner->options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 # Validate the tuning parameters.
 if (! RECIPES->{$recipe}) {
@@ -131,6 +131,8 @@ if ($substitutionModel && ! SUB_MODELS->{$substitutionModel}) {
 # Get the user sequence files.
 my $type = ($dnaFlag ? 'feature_dna_fasta' : 'feature_protein_fasta');
 my $sequenceFiles = $uploader->fix_file_list($sequences, $type);
+# Add the type to each sequence file.
+$sequenceFiles = [ map { { filename => $_, type => 'FASTA' } } @$sequenceFiles ];
 # Compute the alphabet.
 my $alphabet = ($dnaFlag ? "DNA" : "Protein");
 # Handle the output path and name.

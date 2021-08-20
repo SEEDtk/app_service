@@ -100,7 +100,7 @@ GetOptions($commoner->options(), $reader->lib_options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 if (! $reader->check_for_reads()) {
     die "Must specify some type of FASTQ input.";

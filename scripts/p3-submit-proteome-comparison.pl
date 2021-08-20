@@ -96,6 +96,7 @@ use Data::Dumper;
 use Bio::KBase::AppService::CommonSpec;
 use Bio::KBase::AppService::GenomeIdSpec;
 use Bio::KBase::AppService::UploadSpec;
+use Bio::KBase::AppService::GroupSpec;
 use List::Util;
 
 # Insure we're logged in.
@@ -134,7 +135,7 @@ GetOptions($commoner->options(),
 if (! $ARGV[0] || ! $ARGV[1]) {
     die "Too few parameters-- output path and output name are required.";
 } elsif (scalar @ARGV > 2) {
-    die "Too many parameters-- only output path and output name should be specified.";
+    die "Too many parameters-- only output path and output name should be specified.  Found : \"" . join('", "', @ARGV) . '"';
 }
 if ($minSeqCov < 0 || $minSeqCov > 1.0) {
     die "Minimum sequence coverage must be between 0 and 1.";
@@ -151,19 +152,17 @@ if (! $referenceGenomeId) {
 } elsif ($referenceGenomeId !~ /^\d+\.\d+$/) {
     die "Invalid reference genome ID.";
 }
-my $refId = Bio::KBase::AppService::GenomeIdSpec::validate_genomes([$referenceGenomeId]);
+my $refId = Bio::KBase::AppService::GenomeIdSpec::validate_genome('--reference-genome-id' => $referenceGenomeId);
 if (! $refId) {
     die "Reference genome ID not valid.";
 }
-# Convert the reference genome ID from a list reference to a scalar.
-$refId = @$refId;
 # Validate the genome lists.
 my $genomeList = Bio::KBase::AppService::GenomeIdSpec::validate_genomes($genomeIds);
 if (! $genomeList) {
     die "Error processing genome-ids.";
 }
 # Now we need to map the reference genome ID into this list.
-my $referenceGenomeIndex = first { $_ eq $refId } @$genomeList;
+my $referenceGenomeIndex = List::Util::first { $_ eq $refId } @$genomeList;
 if (! defined $referenceGenomeIndex) {
     # Add the ref ID to the front of the list.
     unshift @$genomeList, $refId;
@@ -175,7 +174,11 @@ if (! defined $referenceGenomeIndex) {
 # Get the user genomes.  These are protein fasta files.
 my $userGenomes = $uploader->fix_file_list($proteinFastas, 'feature_protein_fasta');
 # Check the feature groups.
-$userFeatureGroups = Bio::KBase::AppService::GroupSpec::validate_groups($userFeatureGroups, $uploader->get_prefix());
+if (! $userFeatureGroups) {
+    $userFeatureGroups = [];
+} else {
+    $userFeatureGroups = Bio::KBase::AppService::GroupSpec::validate_groups($userFeatureGroups, $uploader->get_prefix());
+}
 # Handle the output path and name.
 my ($outputPath, $outputFile) = $uploader->output_spec(@ARGV);
 # Build the parameter structure.

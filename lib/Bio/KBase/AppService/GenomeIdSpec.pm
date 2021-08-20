@@ -96,6 +96,28 @@ sub validate_genomes {
     return $retVal;
 }
 
+=head3 validate_genome
+
+    my $genomeId = Bio::KBase::AppService::GenomeIdSpec::validate_genome($parmName => $proposedGenomeId);
+
+This method verifies a single genome ID.  It will return C<undef> if the genome ID is invalid, otherwise it will
+return the incoming ID.
+
+=over 4
+
+=back
+
+=cut
+
+sub validate_genome {
+    my ($parmName, $proposedGenomeId) = @_;
+    my $gList = validate_genomes($proposedGenomeId);
+    if ($gList && scalar @$gList != 1) {
+        die "Must specify a single genome ID for $parmName.";
+    }
+    return $gList->[0];
+}
+
 =head3 process_taxid
 
     $scientificName = Bio::KBase::AppService::GenomeIdSpec::process_taxid($taxonomyId, $scientificName);
