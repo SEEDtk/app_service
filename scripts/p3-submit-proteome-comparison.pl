@@ -62,11 +62,11 @@ The minimum coverage of the sequences for the match to be accepted.  The default
 
 The maximum e-value of the sequence match for the match to be accepted.  The default is 1e-5.
 
-=item min-ident
+=item --min-ident
 
 The minimum fraction identity for a match to be accepted.  The default is 0.1 (10%).
 
-=item min-positive
+=item --min-positive
 
 The minimum fraction for positive-scording positions in a match. The default is 0.2 (20%).
 
@@ -187,6 +187,10 @@ my $params = {
     user_feature_groups => $userFeatureGroups,
     user_genomes => $userGenomes,
     reference_genome_index => $referenceGenomeIndex,
+    min_seq_cov => $minSeqCov,
+    min_ident => $minIdent,
+    min_positives => $minPositives,
+    max_e_val => $maxEVal,
     output_path => $outputPath,
     output_file => $outputFile,
 };
