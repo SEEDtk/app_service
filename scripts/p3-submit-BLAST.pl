@@ -245,4 +245,4 @@ if ($dbFastaFileIn) {
     }
 }
 # Submit the job.
-$commoner->submit($app_service, $uploader, $params, BLAST => 'BLAST');
+$commoner->submit($app_service, $uploader, $params, Homology => 'BLAST');

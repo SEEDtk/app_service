@@ -41,6 +41,14 @@ Display the command-line usage and exit. The usage will be taken from a level-1 
 
 Upload the files, display the resulting parameters, and exit without invoking the service.
 
+=item --container_id (internal use only)
+
+ID of the container to run the service job.
+
+=item --reservation (internal use only)
+
+Name of a reservation queue for scheduling the service job.
+
 =back
 
 =head2 Methods
@@ -71,7 +79,10 @@ Return the options list for the common options.
 sub options {
     my ($self) = @_;
     return ("dry-run" => sub { $self->{dry} = 1; },
-            "help|h" => sub { print pod2usage({-verbose => 99, -sections => 'Usage Synopsis', -exitVal => 0}); });
+            "help|h" => sub { print pod2usage({-verbose => 99, '-sections' => 'Usage Synopsis', -exitVal => 0}); },
+            "reservation=s" => sub { $self->{reservation} = $_[1] },
+            "container-id=s" => sub { $self->{container_id} = $_[1] },
+            );
 }
 
 =head3 check_dry_run
@@ -131,6 +142,13 @@ Informal service name for messages.
 
 sub submit {
     my ($self, $app_service, $uploader, $params, $serviceName, $messageName) = @_;
+    # Add the container ID and reservation.
+    if (exists $self->{container_id}) {
+        $params->{container_id} = $self->{container_id};
+    }
+    if (exists $self->{reservation}) {
+        $params->{reservation} = $self->{reservation};
+    }
     # Do the dry-run check.
     $self->check_dry_run($params);
     # Process uploads.
