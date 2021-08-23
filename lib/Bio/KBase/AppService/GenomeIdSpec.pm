@@ -32,7 +32,7 @@ when submitting long-running jobs where an error detected after several hours is
 
 =sub validate_genomes
 
-    my $okFlag = Bio::KBase::AppService::GenomeIdSpec::validate_genomes($ids);
+    my $gList = Bio::KBase::AppService::GenomeIdSpec::validate_genomes($ids);
 
 =over 4
 
