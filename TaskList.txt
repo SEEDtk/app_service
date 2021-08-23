@@ -1,4 +1,3 @@
-
 •	Comprehensive Genome Analysis - implemented as p3-submit-CGA, dry-tested
 •	Metagenomic Read Mapping - implemented as p3-submit-metagenomic-read-mapping, dry-tested
 •	FastqUtils - implemented as p3-submit-fastqutils, dry-tested
@@ -15,5 +14,3 @@
 •	RVA Genotyper - not available yet
 •	Ha Numbering - not available yet
 •	Short-seqsearch - not available yet
-•	SNP Analysis - no trace of service
-
