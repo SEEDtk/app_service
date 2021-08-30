@@ -124,7 +124,7 @@ use constant DB_TYPE => { 'fna' => 'n', 'ffn' => 'n', 'frn' => 'n', 'faa' => 'p'
 use constant DB_FILE_TYPE => { 'fna' => 'contigs', 'ffn' => 'feature_dna_fasta', 'frn' => 'feature_dna_fasta',
     'faa' => 'feature_protein_fasta' };
 
-use constant BLAST_PROGRAM => { 'nn' => 'blastn', 'np' => 'tblastn', 'pn' => 'blastx', 'pp' => 'blastp' };
+use constant BLAST_PROGRAM => { 'nn' => 'blastn', 'np' => 'blastx', 'pn' => 'tblastn', 'pp' => 'blastp' };
 
 use constant DB_NAME => { 'PATRIC' => 1, 'REFSEQ' => 1, 'Plasmids' => 1, 'Phages' => 1 };
 
