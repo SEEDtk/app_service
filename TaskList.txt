@@ -19,8 +19,6 @@ Submission Scripts
 
 Database Services
 
-NOTE: New data API is https://alpha.bv-brc.org/api
-
 *	protein_feature			p3-get-feature-protein-regions and p3-get-genome-protein-regions done
 *	protein_structure		p3-get-feature-protein-structures and p3-get-genome-protein-structures done
 *	surveillance			p3-find-surveillance-data done
