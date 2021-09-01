@@ -1,8 +1,8 @@
-=head1 Submit a PATRIC Genome Assembly Job
+=head1 Submit a BV-BRC Genome Assembly Job
 
     p3-submit-genome-assembly [options] output-path output-name
 
-Submit a set of one or more read libraries to the PATRIC genome assembly service.
+Submit a set of one or more read libraries to the BV-BRC genome assembly service.
 
 =head1 Usage synopsis
 
@@ -103,7 +103,7 @@ my $dry_run;
 my $token = P3AuthToken->new();
 if (!$token->token())
 {
-    die "You must be logged in to PATRIC via the p3-login command to submit assembly jobs\n";
+    die "You must be logged in to BV-BRC via the p3-login command to submit assembly jobs\n";
 }
 my $ws = Bio::P3::Workspace::WorkspaceClientExt->new();
 my $app_service = Bio::KBase::AppService::Client->new();

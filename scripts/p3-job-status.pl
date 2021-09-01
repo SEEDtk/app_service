@@ -2,7 +2,7 @@
 
     p3-job-status jobid [jobid...]
 
-Check the status of one or more PATRIC jobs.
+Check the status of one or more BV-BRC jobs.
 
 =head1 Usage synopsis
 
@@ -24,14 +24,14 @@ my $ua = LWP::UserAgent->new();
 my $token = P3AuthToken->new();
 if (!$token->token())
 {
-    die "You must be logged in to PATRIC via the p3-login command to check job status.\n";
+    die "You must be logged in to BV-BRC via the p3-login command to check job status.\n";
 }
 
 my $app_service = Bio::KBase::AppService::Client->new();
 
 my($opt, $usage) =
     describe_options("%c %o jobid [jobid...]",
-		     ["Check the status of one or more PATRIC jobs."],
+		     ["Check the status of one or more BV-BRC jobs."],
 		     [],
 		     ["stdout=s", "Write the job's stdout to the given file. Use - to write to terminal.\n"],
 		     ["stderr=s", "Write the job's stderr to the given file. Use - to write to terminal.\n"],

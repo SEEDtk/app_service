@@ -1,6 +1,6 @@
 =head1 Submit a Multiple Sequence Alignment Request
 
-This script submits a request to submit an MSA job to PATRIC.  It accepts as input multiple features and/or feature sequences,
+This script submits a request to submit an MSA job to BV-BRC.  It accepts as input multiple features and/or feature sequences,
 and builds an alignment for display.
 
 =head1 Usage Synopsis
@@ -73,7 +73,7 @@ use constant ALIGNER => { 'Muscle' => 1, 'Mafft' => 1, 'progressiveMauve' => 1 }
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
 if (! $p3token->token()) {
-    die "You must be logged into PATRIC to use this script.";
+    die "You must be logged into BV-BRC to use this script.";
 }
 # Get a common-specification processor and an uploader.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();

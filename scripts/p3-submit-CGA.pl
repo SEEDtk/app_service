@@ -1,6 +1,6 @@
 =head1 Submit a Comprehensive Genome Analysis Job
 
-This script submits a CGA job to PATRIC.  It allows input from either read libraries or a FASTA file, annotates the sequences
+This script submits a CGA job to BV-BRC.  It allows input from either read libraries or a FASTA file, annotates the sequences
 (after any necessary assembly), and produces a page of useful reports and graphs.
 
 =head1 Usage Synopsis
@@ -38,18 +38,18 @@ The following options specify the reads from which the genome should be assemble
 =item --paired-end-lib
 
 Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-lib left.fa right.fa>.  The
-libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
+libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the BV-BRC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
 =item --interleaved-lib
 
 A single library of paired-end reads in interleaved format.  This must be a FASTQ file with paired reads mixed together, the forward read
-always preceding the reverse read.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
+always preceding the reverse read.  A prefix of C<ws:> indicates a file is in the BV-BRC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
 =item --single-end-lib
 
-A library of single reads.  This must be a FASTQ file.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are
+A library of single reads.  This must be a FASTQ file.  A prefix of C<ws:> indicates a file is in the BV-BRC workspace; otherwise they are
 uploaded from the local file system.  This parameter may be specified multiple times.
 
 =item --srr-id
@@ -194,7 +194,7 @@ use constant VALID_DOMAINS => { A => 'Archaea', Archaea => 'Archaea', B => 'Bact
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
 if (! $p3token->token()) {
-    die "You must be logged into PATRIC to use this script.";
+    die "You must be logged into BV-BRC to use this script.";
 }
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();

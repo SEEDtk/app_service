@@ -1,6 +1,6 @@
 =head1 Submit an RNA Seq Processing Job
 
-This script submits an RNA Seq processing job to PATRIC.  It allows input from all supported read libraries, and specifies
+This script submits an RNA Seq processing job to BV-BRC.  It allows input from all supported read libraries, and specifies
 the tool to use as well as any conditions or contrasts that we want to appear on the output.
 
 =head1 Usage Synopsis
@@ -38,18 +38,18 @@ The following options specify the reads from which the genome should be assemble
 =item --paired-end-lib
 
 Two paired-end libraries containing reads.  These are coded with a single invocation, e.g. C<--paired-end-lib left.fa right.fa>.  The
-libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
+libraries must be paired FASTQ files.  A prefix of C<ws:> indicates a file is in the BV-BRC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
 =item --interleaved-lib
 
 A single library of paired-end reads in interleaved format.  This must be a FASTQ file with paired reads mixed together, the forward read
-always preceding the reverse read.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are uploaded
+always preceding the reverse read.  A prefix of C<ws:> indicates a file is in the BV-BRC workspace; otherwise they are uploaded
 from the local file system.  This parameter may be specified multiple times.
 
 =item --single-end-lib
 
-A library of single reads.  This must be a FASTQ file.  A prefix of C<ws:> indicates a file is in the PATRIC workspace; otherwise they are
+A library of single reads.  This must be a FASTQ file.  A prefix of C<ws:> indicates a file is in the BV-BRC workspace; otherwise they are
 uploaded from the local file system.  This parameter may be specified multiple times.
 
 =item --srr-id
@@ -92,7 +92,7 @@ Use the Host HISAT suite of RNA tools.
 
 =item --reference-genome-id
 
-If specified, the ID of a genome in PATRIC to which the reads will be aligned.  This operation is always performed last.
+If specified, the ID of a genome in BV-BRC to which the reads will be aligned.  This operation is always performed last.
 
 =back
 
@@ -125,7 +125,7 @@ use Bio::KBase::AppService::GenomeIdSpec;
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
 if (! $p3token->token()) {
-    die "You must be logged into PATRIC to use this script.";
+    die "You must be logged into BV-BRC to use this script.";
 }
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();

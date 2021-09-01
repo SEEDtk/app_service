@@ -1,7 +1,7 @@
 =head1 Submit a Phylogenetic Tree Mapping Request
 
-This script submits a request to build a codon tree to PATRIC.  This is a slow process and the job can take more than one day, depending on the
-number of genoems.  It takes a list of PATRIC genome IDs as input and accepts a few additional parameters.
+This script submits a request to build a codon tree to BV-BRC.  This is a slow process and the job can take more than one day, depending on the
+number of genoems.  It takes a list of BV-BRC genome IDs as input and accepts a few additional parameters.
 
 =head1 Usage Synopsis
 
@@ -22,7 +22,7 @@ Prefix to be put in front of the output path.  This is optional, and is provided
 
 Main list of genome IDs, comma-delimited.  Alternatively, this can be a local file name.  If specified, the file must be tab-delimited,
 with a header line, containing the genome IDs in the first column.  The genome IDs in this file can optionally be enclosed in quotes,
-allowing a text file download of a PATRIC genome group or genome display to be used.
+allowing a text file download of a BV-BRC genome group or genome display to be used.
 
 =item --optional-genome-ids
 
@@ -67,7 +67,7 @@ use constant GENE_SET_NAMES => { 'VFDB' => 1, 'CARD' => 1 };
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
 if (! $p3token->token()) {
-    die "You must be logged into PATRIC to use this script.";
+    die "You must be logged into BV-BRC to use this script.";
 }
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();

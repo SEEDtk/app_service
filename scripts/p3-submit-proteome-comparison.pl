@@ -30,7 +30,7 @@ If a file to be uploaded already exists and this parameter is specified, it will
 
 Main list of genome IDs, comma-delimited.  Alternatively, this can be a local file name.  If specified, the file must be tab-delimited,
 with a header line, containing the genome IDs in the first column.  The genome IDs in this file can optionally be enclosed in quotes,
-allowing a text file download of a PATRIC genome group or genome display to be used.
+allowing a text file download of a BV-BRC genome group or genome display to be used.
 
 =item --protein-fasta
 
@@ -39,7 +39,7 @@ the protein fasta files of real genomes.)  For multiple values, specify the opti
 
 =item --user-feature-group
 
-List of PATRIC feature group names.  These are specified as workspace files, so they are modified by the workspace path prefix,
+List of BV-BRC feature group names.  These are specified as workspace files, so they are modified by the workspace path prefix,
 but they should not have the C<ws:> prefix.  Each group is treated as a virtual genome containing the proteins in the group.  For
 multiple groups, specify the option multiple times.
 
@@ -102,7 +102,7 @@ use List::Util;
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
 if (! $p3token->token()) {
-    die "You must be logged into PATRIC to use this script.";
+    die "You must be logged into BV-BRC to use this script.";
 }
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();

@@ -1,6 +1,6 @@
 =head1 Submit a BLAST Request
 
-This script submits a request to submit a BLAST job to PATRIC.  It is a swiss army knife, accepting two sources of query input of
+This script submits a request to submit a BLAST job to BV-BRC.  It is a swiss army knife, accepting two sources of query input of
 two types and five sources of subject input of four types.
 
 =head1 Usage Synopsis
@@ -85,7 +85,7 @@ A comma-delimited list of taxon IDs.
 
 =item --db-database
 
-The name of a pre-computed database-- currently C<RefSeq> (reference and representative genomes), C<PATRIC> (all prokaryotic genomes),
+The name of a pre-computed database-- currently C<RefSeq> (reference and representative genomes), C<BV-BRC> (all prokaryotic genomes),
 C<Plasmids> (all plasmids), or C<Phages> all phages.
 
 =back
@@ -126,12 +126,12 @@ use constant DB_FILE_TYPE => { 'fna' => 'contigs', 'ffn' => 'feature_dna_fasta',
 
 use constant BLAST_PROGRAM => { 'nn' => 'blastn', 'np' => 'blastx', 'pn' => 'tblastn', 'pp' => 'blastp' };
 
-use constant DB_NAME => { 'PATRIC' => 1, 'REFSEQ' => 1, 'Plasmids' => 1, 'Phages' => 1 };
+use constant DB_NAME => { 'BV-BRC' => 1, 'REFSEQ' => 1, 'Plasmids' => 1, 'Phages' => 1 };
 
 # Insure we're logged in.
 my $p3token = P3AuthToken->new();
 if (! $p3token->token()) {
-    die "You must be logged into PATRIC to use this script.";
+    die "You must be logged into BV-BRC to use this script.";
 }
 # Get a common-specification processor, an uploader, and a reads-processor.
 my $commoner = Bio::KBase::AppService::CommonSpec->new();

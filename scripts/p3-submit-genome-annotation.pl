@@ -1,8 +1,8 @@
-=head1 Submit a PATRIC Genome Annotation Job
+=head1 Submit a BV-BRC Genome Annotation Job
 
     p3-submit-genome-annotation [options] output-path output-name
 
-Submit a genome to the PATRIC genome annotation service.
+Submit a genome to the BV-BRC genome annotation service.
 
 =head1 Usage synopsis
 
@@ -26,7 +26,7 @@ Submit a genome to the PATRIC genome annotation service.
        --contigs FILE		 A file of DNA contigs to be annotated.
            --phage			 Set annotation defaults for phage annotation.
            --recipe NAME		 Use the given annotation recipe for this genome.
-           --reference-genome GID	 The PATRIC identifier of a reference genome
+           --reference-genome GID	 The BV-BRC identifier of a reference genome
                               whose annotations will be propagated as
                      part of this annotation.
 
@@ -56,7 +56,7 @@ Submit a genome to the PATRIC genome annotation service.
                      the job is marked as complete.
        --no-index			 Do not index this genome. If this option
                         is selected the genome will not be visible
-                     on the PATRIC website.
+                     on the BV-BRC website.
 
 =cut
 
@@ -80,7 +80,7 @@ use Fcntl ':mode';
 my $token = P3AuthToken->new();
 if (!$token->token())
 {
-    die "You must be logged in to PATRIC via the p3-login command to submit annotation jobs.\n";
+    die "You must be logged in to BV-BRC via the p3-login command to submit annotation jobs.\n";
 }
 my $ws = Bio::P3::Workspace::WorkspaceClientExt->new();
 my $app_service = Bio::KBase::AppService::Client->new();
@@ -88,7 +88,7 @@ my $app_service = Bio::KBase::AppService::Client->new();
 my($opt, $usage) =
     describe_options("%c %o output-path output-name",
              ["Submit an annotation job with output written to output-path and named output-name."],
-             ["The output-path parameter is a PATRIC workspace path."],
+             ["The output-path parameter is a BV-BRC workspace path."],
              ["The output-name parameter is a name that will describe this annotation in the workspace."],
              ["It may not contain slash (/) characters."],
              [],
@@ -101,7 +101,7 @@ my($opt, $usage) =
              ["contigs-file=s", "A file of DNA contigs to be annotated."],
              ["phage", "Set defaults for phage annotation."],
              ["recipe=s", "Use the given non-default recipe for this annotation"],
-             ["reference-genome=s", "The PATRIC identifier of a reference genome whose annotations will be propagated as part of this annotation."],
+             ["reference-genome=s", "The BV-BRC identifier of a reference genome whose annotations will be propagated as part of this annotation."],
              [],
              ["The following options describe the genome to be annotated."],
              ["In each case where the value for the specified option may be drawn"],
@@ -118,7 +118,7 @@ my($opt, $usage) =
              ["workflow-file=s", "Use the given workflow document to process annotate this genome."],
              ["import-only", "Import this genome as is - do not reannotate gene calls or gene function. Only valid for genbank file input."],
              ["index-nowait", "Do not wait for indexing to complete before the job is marked as complete."],
-             ["no-index", "Do not index this genome. If this option is selected the genome will not be visible on the PATRIC website."],
+             ["no-index", "Do not index this genome. If this option is selected the genome will not be visible on the BV-BRC website."],
              ["dry-run", "Dry run. Upload files and validate input but do not submit annotation"],
              [],
              ["help|h", "Show this help message"],
